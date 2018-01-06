@@ -2,12 +2,12 @@ import buble from 'rollup-plugin-buble'
 import uglify from 'rollup-plugin-uglify';
 
 export default {
-  entry: 'src/mediancut.js',
+  input: 'src/mediancut.js',
   output: {
     file: 'dist/mediancut.js',
     format: 'umd',
+    name: 'MedianCut',
   },
-  name: 'MedianCut',
   plugins: [
     buble(),
     uglify()

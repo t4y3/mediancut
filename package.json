@@ -1,10 +1,12 @@
 {
   "name": "mediancut",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MedianCut by JavaScript",
   "main": "dist/mediancut.js",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "build:docs": "rm -rf docs/ && parcel build src/docs/index.html -d docs --public-url ./",
+    "watch:docs": "parcel src/docs/index.html -d docs"
   },
   "repository": {
     "type": "git",
@@ -18,6 +20,9 @@
   },
   "homepage": "https://github.com/t4y3/mediancut#readme",
   "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "node-sass": "^4.7.2",
+    "parcel-bundler": "^1.4.1",
     "rollup": "^0.53.3",
     "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-uglify": "^2.0.1"
