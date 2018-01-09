@@ -8,6 +8,10 @@ export default class MedianCut {
     this.cubes = [];
   }
 
+  /**
+   * 各キューブのプロパティを設定
+   * @param {array} color カラー情報
+   */
   _setProperty(color) {
     let total = 0;
     let maxR = 0;
@@ -47,6 +51,12 @@ export default class MedianCut {
     };
   }
 
+  /**
+   * 中央値を算出して分割
+   * @param  {Object} cubes     キューブ情報
+   * @param  {Number} colorsize 減色後の色数
+   * @return {Object}
+   */
   _mediancut(cubes, colorsize) {
     let count = 0;
     let index = 0;
@@ -117,6 +127,10 @@ export default class MedianCut {
     }
   }
 
+  /**
+   * 使用している色数/使用回数を取得
+   * @return {Object}
+   */
   getColorInfo() {
     // 使用色/使用回数(面積)を取得
     let count = 0;
@@ -149,6 +163,10 @@ export default class MedianCut {
     return colors;
   }
 
+  /**
+   * 算出した代表色を取得
+   * @return {Object}
+   */
   getColors() {
     // キューブ毎に代表色(重み係数による平均)を算出する
     let colors = [];
@@ -173,6 +191,10 @@ export default class MedianCut {
     return colors;
   }
 
+  /**
+   * 減色処理の実行
+   * @param  {Number} colorsize 減色する色数
+   */
   run(colorsize, update) {
 
     // 元画像の色数が減色数よりも小さい
