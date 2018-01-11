@@ -32,8 +32,8 @@ let imagedata = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
 // Reduced to 16 colors
 let medianCut = new MedianCut(imagedata);
-medianCut.run(16);
+let iData = medianCut.run(16);
 
 // Draw
-ctx.putImageData(imagedata, 0, 0, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+ctx.putImageData(iData, 0, 0, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
 ```
