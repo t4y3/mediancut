@@ -13,12 +13,13 @@ export default class MedianCut {
     this.raw = this.imagedata.data;
     this.width = this.imagedata.width;
     this.height = this.imagedata.height;
-    this.colors = this.getColorInfo();
+    this.colors = this._getColorInfo();
     this.cubes = [];
   }
 
   /**
    * 各キューブのプロパティを設定
+   * @private
    * @param {Object[]} color カラー情報
    */
   _setProperty(color) {
@@ -62,6 +63,7 @@ export default class MedianCut {
 
   /**
    * 中央値を算出して分割
+   * @private
    * @param  {Object[]} cubes     キューブ情報
    * @param  {number} colorsize 減色後の色数
    * @return {Object[]}
@@ -138,9 +140,10 @@ export default class MedianCut {
 
   /**
    * 使用している色数/使用回数を取得
+   * @private
    * @return {Object[]}
    */
-  getColorInfo() {
+  _getColorInfo() {
     // 使用色/使用回数(面積)を取得
     let count = 0;
     let uses_colors = {};
@@ -176,7 +179,7 @@ export default class MedianCut {
    * 算出した代表色を取得
    * @return {Object[]}
    */
-  getColors() {
+  getIndexColors() {
     // キューブ毎に代表色(重み係数による平均)を算出する
     let colors = [];
     for (let i = 0; i < this.cubes.length; i++) {
@@ -212,19 +215,13 @@ export default class MedianCut {
     }
 
     // 1個目のキューブの作成
-    let plane = [];
-    for (let i = 0; i < this.colors.length; i++) {
-      plane.push(this.colors[i]);
-    }
-
-    let dummy = [];
-    dummy[0] = this._setProperty(plane);
+    let cube = [this._setProperty(this.colors)];
 
     // キューブの分割
-    this.cubes = this._mediancut(dummy, colorsize);
+    this.cubes = this._mediancut(cube, colorsize);
 
     // 代表色の保存
-    let colors = this.getColors();
+    let indexColors = this.getIndexColors();
 
     // ピクセルデータ設定用の連想配列(高速化用)
     let pixels = {};
@@ -232,9 +229,9 @@ export default class MedianCut {
       for (let j = 0; j < this.cubes[i].color.length; j++) {
         let c = this.cubes[i].color[j];
         pixels[`${ c.r },${ c.g },${ c.b }`] = {
-          'r': colors[i].r,
-          'g': colors[i].g,
-          'b': colors[i].b
+          'r': indexColors[i].r,
+          'g': indexColors[i].g,
+          'b': indexColors[i].b
         };
       }
     }
