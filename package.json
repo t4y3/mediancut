@@ -14,7 +14,9 @@
     "type": "git",
     "url": "git+https://github.com/t4y3/mediancut.git"
   },
-  "keywords": [],
+  "keywords": [
+    "mediancut"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
