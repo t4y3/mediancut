@@ -13,7 +13,9 @@
     "url": "git+https://github.com/t4y3/mediancut.git"
   },
   "keywords": [
-    "mediancut"
+    "mediancut",
+    "gradation",
+    "canvas"
   ],
   "author": "",
   "license": "ISC",
