@@ -1,5 +1,5 @@
 import buble from 'rollup-plugin-buble'
-import { uglify } from 'rollup-plugin-uglify';
+import { terser } from "rollup-plugin-terser";
 
 export default [
   {
@@ -19,12 +19,20 @@ export default [
       name: 'MedianCut',
     },
     plugins: plugins(),
-  }
+  },
+  {
+    input: 'src/mediancut.js',
+    output: {
+      file: 'dist/mediancut.module.js',
+      format: 'esm',
+    },
+    plugins: plugins(),
+  },
 ]
 
 function plugins(){
   return [
     buble(),
-    uglify()
+    terser()
   ];
 }
