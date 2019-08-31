@@ -3,6 +3,7 @@
   "version": "1.0.9",
   "description": "MedianCut by JavaScript",
   "main": "dist/mediancut.js",
+  "module": "dist/mediancut.module.js",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
