@@ -1,19 +1,20 @@
+const TYPE_R = 'r';
+const TYPE_G = 'g';
+const TYPE_B = 'b';
+
 /**
  * MedianCut
  */
 export default class MedianCut {
+  /**
+   *
+   * @param {ImageData} imagedata
+   */
   constructor(imagedata) {
-    // imagedataのコピー
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext("2d");
-    this.imagedata = ctx.createImageData(imagedata.width, imagedata.height);
-    this.imagedata.data.set(imagedata.data);
-
-    // プロパティ
-    this.raw = this.imagedata.data;
-    this.width = this.imagedata.width;
-    this.height = this.imagedata.height;
-    this.colors = this._getColorInfo();
+    this.raw = imagedata.data;
+    this.width = imagedata.width;
+    this.height = imagedata.height;
+    this.colors = this.__getColorInfo();
     this.cubes = [];
   }
 
@@ -22,7 +23,7 @@ export default class MedianCut {
    * @private
    * @param {Object[]} color カラー情報
    */
-  _setProperty(color) {
+  __setProperty(color) {
     let total = 0;
     let maxR = 0;
     let maxG = 0;
@@ -32,7 +33,8 @@ export default class MedianCut {
     let minB = 255;
 
     // 立方体の1辺の長さ
-    for (let i = 0; i < color.length; i++) {
+    // キューブで使用している色からRGBそれぞれのmin,maxをとる
+    for (let i = 0, len = color.length; i < len; i=(i+1)|0) {
       let c = color[i];
       maxR = Math.max(c.r, maxR);
       maxG = Math.max(c.g, maxG);
@@ -40,23 +42,25 @@ export default class MedianCut {
       minR = Math.min(c.r, minR);
       minG = Math.min(c.g, minG);
       minB = Math.min(c.b, minB);
-      // キューブで使用している面積
-      total += c.uses;
+      // キューブで使用している面積(色数*その色の使用数)
+      total = total + c.uses;
     }
 
+    // 目は赤と緑が認識しやすいのでRとGに係数をかける
+    // 一辺の長さ
     let dr = (maxR - minR) * 1.2;
     let dg = (maxG - minG) * 1.2;
     let db = (maxB - minB);
 
     // 同一の場合はrを優先する
-    let type = 'r';
-    if (dr > dg && dr > db) { type = 'r'; }
-    if (dg > dr && dg > db) { type = 'g'; }
-    if (db > dr && db > dg) { type = 'b'; }
+    let type = TYPE_R;
+    if (dr > dg && dr > db) { type = TYPE_R; }
+    if (dg > dr && dg > db) { type = TYPE_G; }
+    if (db > dr && db > dg) { type = TYPE_B; }
 
     return {
       color,  // キューブの各色情報
-      total,  // キューブの総面積(総色数)
+      total,  // キューブの総面積(総色数。同色の場合も二ヶ所で使用されていたら2になる)
       type,   // キューブの種類(R/G/B)
     };
   }
@@ -73,57 +77,46 @@ export default class MedianCut {
     let index = 0;
 
     // 面積(色数)が最大のキューブを選択
-    for (let i = 0; i < cubes.length; i++) {
+    for (let i = 0, len = cubes.length; i < len; i=(i+1)|0) {
       if (cubes[i].total > count) {
         // 1点は除く
-        if (cubes[i].color.length != 1) {
+        if (cubes[i].color.length !== 1) {
           index = i;
           count = cubes[i].total;
         }
       }
     }
+    const targetCube = cubes[index];
 
-    if (cubes[index].total == 1) {
-      console.error(`Cube could not be split.`);
-      return cubes;
-    }
-
-    if (cubes[index].color.length == 1) {
+    if (targetCube.total === 1 || targetCube.color.length === 1) {
       console.error(`Cube could not be split.`);
       return cubes;
     }
 
     // メディアン由来の中央値を算出する
-    let colortype = cubes[index].type;
-    cubes[index].color.sort((a, b) => {
-      if (a[colortype] < b[colortype]) {
-        return -1;
-      }
-      if (a[colortype] > b[colortype]) {
-        return 1;
-      }
-      return 0;
-    });
-    let splitBorder = Math.floor((cubes[index].color.length + 1) / 2);
+    const colortype = targetCube.type;
+    // 昇順
+    targetCube.color.sort((a, b) => a[colortype] - b[colortype]);
+    let splitBorder = Math.floor((targetCube.color.length + 1) / 2);
 
     // 分割の開始
     let split1 = [];
     let split2 = [];
-    for (let i = 0; i < cubes[index].color.length; i++) {
+    for (let i = 0, len = targetCube.color.length; i < len; i=(i+1)|0) {
       if (i < splitBorder) {
-        split1[split1.length] = cubes[index].color[i];
+        split1[split1.length] = targetCube.color[i];
       } else {
-        split2[split2.length] = cubes[index].color[i];
+        split2[split2.length] = targetCube.color[i];
       }
     }
 
     // プロパティの設定
-    split1 = this._setProperty(split1);
-    split2 = this._setProperty(split2);
+    split1 = this.__setProperty(split1);
+    split2 = this.__setProperty(split2);
 
     // キューブ配列の再編成
     let result = [];
-    for (let i = 0; i < cubes.length; i++) {
+    for (let i = 0, len = cubes.length; i < len; i=(i+1)|0) {
       if (i != index) {
         result[result.length] = cubes[i];
       }
@@ -141,37 +134,36 @@ export default class MedianCut {
   /**
    * 使用している色数/使用回数を取得
    * @private
-   * @return {Object[]}
+   * @return {{r: number, g: number, b: number, uses: *}[]}
    */
-  _getColorInfo() {
+  __getColorInfo() {
     // 使用色/使用回数(面積)を取得
     let count = 0;
-    let uses_colors = {};
 
-    for (let i = 0; i < this.height; i++) {
-      for (let j = 0; j < this.width; j++) {
-        let key = `${ this.raw[count] },${ this.raw[count + 1] },${ this.raw[count + 2] }`;
-        if (!uses_colors[key]) {
-          uses_colors[key] = 1;
+    const usesColors = new Map();
+    for (let i = 0, iLen = this.height; i < iLen; i=(i+1)|0) {
+      for (let j = 0, jLen = this.width; j < jLen; j=(j+1)|0) {
+        const key = this.raw[count] | (this.raw[count + 1] << 8) | (this.raw[count + 2] << 16);
+        const c = usesColors.get(key);
+        if (c) {
+          usesColors.set(key, c + 1);
         } else {
-          uses_colors[key] += 1;
+          usesColors.set(key, 1);
         }
         count = count + 4;
       }
     }
 
     // 連想配列を配列へ設定
-    let rgb;
     let colors = [];
-    for (let key in uses_colors) {
-      rgb = key.split(',');
+    usesColors.forEach((value, key) => {
       colors[colors.length] = {
-        'r': parseInt(rgb[0], 10),
-        'g': parseInt(rgb[1], 10),
-        'b': parseInt(rgb[2], 10),
-        'uses': uses_colors[key]
+        'r': key & 0b11111111,
+        'g': key >> 8 & 0b11111111,
+        'b': key >> 16 & 0b11111111,
+        'uses': value
       };
-    }
+    });
     return colors;
   }
 
@@ -182,12 +174,12 @@ export default class MedianCut {
   getIndexColors() {
     // キューブ毎に代表色(重み係数による平均)を算出する
     let colors = [];
-    for (let i = 0; i < this.cubes.length; i++) {
+    for (let i = 0, iLen = this.cubes.length; i < iLen; i=(i+1)|0) {
       let count = 0;
       let r = 0,
       g = 0,
       b = 0;
-      for (let j = 0; j < this.cubes[i].color.length; j++) {
+      for (let j = 0, jLen = this.cubes[i].color.length; j < jLen; j=(j+1)|0) {
         let c = this.cubes[i].color[j];
         r += c.r * c.uses;
         g += c.g * c.uses;
@@ -215,7 +207,7 @@ export default class MedianCut {
     }
 
     // 1個目のキューブの作成
-    let cube = [this._setProperty(this.colors)];
+    let cube = [this.__setProperty(this.colors)];
 
     // キューブの分割
     this.cubes = this._mediancut(cube, colorsize);
@@ -223,32 +215,34 @@ export default class MedianCut {
     // 代表色の保存
     let indexColors = this.getIndexColors();
 
-    // ピクセルデータ設定用の連想配列(高速化用)
-    let pixels = {};
-    for (let i = 0; i < this.cubes.length; i++) {
-      for (let j = 0; j < this.cubes[i].color.length; j++) {
+    // 代表色のMap
+    const pixels = new Map();
+    for (let i = 0, iLen = this.cubes.length; i < iLen; i=(i+1)|0) {
+      const indexColor = indexColors[i];
+      for (let j = 0, jLen = this.cubes[i].color.length; j < jLen; j=(j+1)|0) {
         let c = this.cubes[i].color[j];
-        pixels[`${ c.r },${ c.g },${ c.b }`] = {
-          'r': indexColors[i].r,
-          'g': indexColors[i].g,
-          'b': indexColors[i].b
-        };
+        const key = c.r | (c.g << 8) | (c.b << 16);
+        pixels.set(key, indexColor);
       }
     }
 
     // データの設定
-    let key = '';
-    let count = 0;
-    for (let i = 0; i < this.height; i++) {
-      for (let j = 0; j < this.width; j++) {
-        key = `${ this.raw[count] },${ this.raw[count + 1] },${ this.raw[count + 2] }`;
-        this.raw[count] = pixels[key].r;
-        this.raw[count + 1] = pixels[key].g;
-        this.raw[count + 2] = pixels[key].b;
-        count = count + 4;
-      }
+    const dataLength = this.raw.length;
+    const data = new Uint8ClampedArray(dataLength);
+    let i = 0;
+    while(i < dataLength) {
+      const key = this.raw[i] | (this.raw[i + 1] << 8) | (this.raw[i + 2] << 16);
+      const color = pixels.get(key);
+
+      data[i] = color.r;
+      data[i + 1] = color.g;
+      data[i + 2] = color.b;
+      data[i + 3] = this.raw[i + 3];
+
+      i = (i+4)|0;
     }
 
-    return this.imagedata;
+    // return this.imagedata;
+    return new ImageData(data, this.width, this.height);
   }
 }
