@@ -1,7 +1,7 @@
 const TYPE_R = 0;
 const TYPE_G = 1;
 const TYPE_B = 2;
-const BIT_FOR_ROUNDING = 0b111110001111100011111000;
+const BIT_FOR_ROUNDING = 0b11111000;
 
 /**
  * MedianCut
@@ -12,10 +12,8 @@ export default class MedianCut {
    * @param {ImageData} imageData
    */
   constructor(imageData) {
-    this.raw = imageData.data;
-    this.width = imageData.width;
-    this.height = imageData.height;
-    this.colors = this.__getColorInfo(this.raw);
+    this.imageData = imageData;
+    this.colors = this.__getColors(this.imageData.data);
     this.buckets = [];
   }
 
@@ -25,7 +23,7 @@ export default class MedianCut {
    */
   get palette() {
     const colors = [];
-    for (let i = 0, len = this.buckets.length; i < len; i=(i+1)|0) {
+    for (let i = 0, len = this.buckets.length; i < len; i = (i + 1) | 0) {
       colors[i] = this.__getPalette(this.buckets[i].color);
     }
     return colors;
@@ -36,7 +34,6 @@ export default class MedianCut {
    * @param  {number} colorSize 減色する色数
    */
   run(colorSize) {
-
     // 元画像の色数が減色数よりも小さい
     if (this.colors.length <= colorSize) {
       console.error(`It has already been reduced color.`);
@@ -50,33 +47,48 @@ export default class MedianCut {
 
     // 代表色のMap
     const pixels = new Map();
-    for (let i = 0, iLen = this.buckets.length; i < iLen; i=(i+1)|0) {
+    for (let i = 0, iLen = this.buckets.length; i < iLen; i = (i + 1) | 0) {
       // 代表色の取得
       const palette = this.__getPalette(this.buckets[i].colors);
-      for (let j = 0, jLen = this.buckets[i].colors.length; j < jLen; j=(j+1)|0) {
-        const [ r, g, b ] = this.buckets[i].colors[j];
-        const key = r | (g << 8) | (b << 16);
-        pixels.set(key & BIT_FOR_ROUNDING, palette);
+      for (
+        let j = 0, jLen = this.buckets[i].colors.length;
+        j < jLen;
+        j = (j + 1) | 0
+      ) {
+        const [r, g, b] = this.buckets[i].colors[j];
+        const key =
+          (r & BIT_FOR_ROUNDING) |
+          ((g & BIT_FOR_ROUNDING) << 8) |
+          ((b & BIT_FOR_ROUNDING) << 16);
+        pixels.set(key, palette);
       }
     }
 
     // データの設定
-    const dataLength = this.raw.length;
-    const data = new Uint8ClampedArray(dataLength);
+    const data = this.imageData.data;
+    const dataLength = data.length;
+    const imageData = new Uint8ClampedArray(dataLength);
     let i = 0;
-    while(i < dataLength) {
-      const key = this.raw[i] | (this.raw[i + 1] << 8) | (this.raw[i + 2] << 16);
-      const [r, g, b] = pixels.get(key & BIT_FOR_ROUNDING);
+    while (i < dataLength) {
+      const key =
+        (data[i] & BIT_FOR_ROUNDING) |
+        ((data[i + 1] & BIT_FOR_ROUNDING) << 8) |
+        ((data[i + 2] & BIT_FOR_ROUNDING) << 16);
+      const [r, g, b] = pixels.get(key);
 
-      data[i] = r;
-      data[i + 1] = g;
-      data[i + 2] = b;
-      data[i + 3] = this.raw[i + 3];
+      imageData[i] = r;
+      imageData[i + 1] = g;
+      imageData[i + 2] = b;
+      imageData[i + 3] = data[i + 3];
 
-      i = (i+4)|0;
+      i = (i + 4) | 0;
     }
 
-    return new ImageData(data, this.width, this.height);
+    return new ImageData(
+      imageData,
+      this.imageData.width,
+      this.imageData.height
+    );
   }
 
   /**
@@ -90,8 +102,8 @@ export default class MedianCut {
     let __r = 0;
     let __g = 0;
     let __b = 0;
-    for (let i = 0, len = colors.length; i < len; i=(i+1)|0) {
-      const [ r, g, b, uses ] = colors[i];
+    for (let i = 0, len = colors.length; i < len; i = (i + 1) | 0) {
+      const [r, g, b, uses] = colors[i];
       __r += r * uses;
       __g += g * uses;
       __b += b * uses;
@@ -122,8 +134,8 @@ export default class MedianCut {
     // bucketで使用している色からRGBそれぞれのmin,maxをとる
     let len = colors.length;
     let i = 0;
-    while(i < len) {
-      const [ r, g, b, uses ] = colors[i];
+    while (i < len) {
+      const [r, g, b, uses] = colors[i];
       maxR = Math.max(r, maxR);
       maxG = Math.max(g, maxG);
       maxB = Math.max(b, maxB);
@@ -132,25 +144,31 @@ export default class MedianCut {
       minB = Math.min(b, minB);
       // bucketで使用している面積(色数*その色の使用数)
       total = total + uses;
-      i=(i+1)|0;
+      i = (i + 1) | 0;
     }
 
     // 目は赤と緑が認識しやすいのでRとGに係数をかける
     // 一辺の長さ
     const dr = (maxR - minR) * 1.2;
     const dg = (maxG - minG) * 1.2;
-    const db = (maxB - minB);
+    const db = maxB - minB;
 
     // 同一の場合はrを優先する
     let type = TYPE_R;
-    if (dr > dg && dr > db) { type = TYPE_R; }
-    if (dg > dr && dg > db) { type = TYPE_G; }
-    if (db > dr && db > dg) { type = TYPE_B; }
+    if (dr > dg && dr > db) {
+      type = TYPE_R;
+    }
+    if (dg > dr && dg > db) {
+      type = TYPE_G;
+    }
+    if (db > dr && db > dg) {
+      type = TYPE_B;
+    }
 
     return {
-      colors,  // bucketの各色情報
-      total,  // bucketの総面積(総色数。同色の場合も2ヶ所で使用されていたら2になる)
-      type,   // bucketの種類(R/G/B)
+      colors, // bucketの各色情報
+      total, // bucketの総面積(総色数。同色の場合も2ヶ所で使用されていたら2になる)
+      type // bucketの種類(R/G/B)
     };
   }
 
@@ -166,7 +184,7 @@ export default class MedianCut {
     let index = 0;
 
     // 面積(色数)が最大のbucketを選択
-    for (let i = 0, len = buckets.length; i < len; i=(i+1)|0) {
+    for (let i = 0, len = buckets.length; i < len; i = (i + 1) | 0) {
       if (buckets[i].total > count) {
         // 1点は除く
         if (buckets[i].colors.length !== 1) {
@@ -193,7 +211,7 @@ export default class MedianCut {
 
     // bucket配列の再編成
     let result = [];
-    for (let i = 0, len = buckets.length; i < len; i=(i+1)|0) {
+    for (let i = 0, len = buckets.length; i < len; i = (i + 1) | 0) {
       if (i !== index) {
         result[result.length] = buckets[i];
       }
@@ -209,37 +227,32 @@ export default class MedianCut {
   }
 
   /**
-   * 使用している色数/使用回数(面積)を取得
+   * 使用している色を取得（メモリ節約の為に下位3bitを丸める）
    * @param {Uint8ClampedArray} data
    * @private
    * @return {{r: number, g: number, b: number, uses: *}[]}
    */
-  __getColorInfo(data) {
-    const usesColors = new Map();
+  __getColors(data) {
+    const colors = new Map();
     const dataLength = data.length;
     let i = 0;
-    while(i < dataLength) {
+    while (i < dataLength) {
       // 全ピットの場合、メモリを使いすぎるので下3桁はむし
-      const key = data[i] | (data[i + 1] << 8) | (data[i + 2] << 16);
-      const c = usesColors.get(key & BIT_FOR_ROUNDING);
-      if (c) {
-        usesColors.set(key, c + 1);
-      } else {
-        usesColors.set(key, 1);
-      }
-      i = (i+4)|0;
+      const r = data[i] & BIT_FOR_ROUNDING;
+      const g = data[i + 1] & BIT_FOR_ROUNDING;
+      const b = data[i + 2] & BIT_FOR_ROUNDING;
+      const key = r | (g << 8) | (b << 16);
+      const c = colors.get(key);
+      const count = c ? c[3] + 1 : 1;
+      colors.set(key, [r, g, b, count]);
+      i = (i + 4) | 0;
     }
 
-    // 連想配列を配列へ設定
-    let colors = [];
-    usesColors.forEach((value, key) => {
-      colors[colors.length] = [
-        key & 0b11111111,
-        key >> 8 & 0b11111111,
-        key >> 16 & 0b11111111,
-        value
-      ];
+    // 配列に変換
+    const resule = [];
+    colors.forEach(value => {
+      resule[resule.length] = value;
     });
-    return colors;
+    return resule;
   }
 }
