@@ -20,6 +20,91 @@ export default class MedianCut {
   }
 
   /**
+   * 算出した代表色を取得
+   * @return {Object[]}
+   */
+  getIndexColors() {
+    const colors = [];
+    for (let i = 0, len = this.cubes.length; i < len; i=(i+1)|0) {
+      colors[i] = this.__getIndexColors(this.cubes[i]);
+    }
+    return colors;
+  }
+
+  /**
+   * 減色処理の実行
+   * @param  {number} colorsize 減色する色数
+   */
+  run(colorsize) {
+
+    // 元画像の色数が減色数よりも小さい
+    if (this.colors.length <= colorsize) {
+      console.error(`It has already been reduced color.`);
+    }
+
+    // 1個目のキューブの作成
+    let cube = [this.__setProperty(this.colors)];
+
+    // キューブの分割
+    this.cubes = this.__mediancut(cube, colorsize);
+
+    // 代表色のMap
+    const pixels = new Map();
+    for (let i = 0, iLen = this.cubes.length; i < iLen; i=(i+1)|0) {
+      // 代表色の取得
+      const indexColor = this.__getIndexColors(this.cubes[i]);
+      for (let j = 0, jLen = this.cubes[i].color.length; j < jLen; j=(j+1)|0) {
+        let c = this.cubes[i].color[j];
+        const key = c.r | (c.g << 8) | (c.b << 16);
+        pixels.set(key & BIT_FOR_ROUNDING, indexColor);
+      }
+    }
+
+    // データの設定
+    const dataLength = this.raw.length;
+    const data = new Uint8ClampedArray(dataLength);
+    let i = 0;
+    while(i < dataLength) {
+      const key = this.raw[i] | (this.raw[i + 1] << 8) | (this.raw[i + 2] << 16);
+      const color = pixels.get(key & BIT_FOR_ROUNDING);
+
+      data[i] = color.r;
+      data[i + 1] = color.g;
+      data[i + 2] = color.b;
+      data[i + 3] = this.raw[i + 3];
+
+      i = (i+4)|0;
+    }
+
+    return new ImageData(data, this.width, this.height);
+  }
+
+  /**
+   * キューブ毎に代表色(重み係数による平均)を算出する
+   * @param cube
+   * @return {{r: number, b: number, g: number}}
+   * @private
+   */
+  __getIndexColors(cube) {
+    let count = 0;
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    for (let i = 0, len = cube.color.length; i < len; i=(i+1)|0) {
+      let c = cube.color[i];
+      r += c.r * c.uses;
+      g += c.g * c.uses;
+      b += c.b * c.uses;
+      count += c.uses;
+    }
+    return {
+      'r': Math.round(r / count),
+      'g': Math.round(g / count),
+      'b': Math.round(b / count)
+    };
+  }
+
+  /**
    * 各キューブのプロパティを設定
    * @private
    * @param {Object[]} color カラー情報
@@ -47,7 +132,7 @@ export default class MedianCut {
       minB = Math.min(b, minB);
       // キューブで使用している面積(色数*その色の使用数)
       total = total + uses;
-      i=(i+1)|0
+      i=(i+1)|0;
     }
 
     // 目は赤と緑が認識しやすいのでRとGに係数をかける
@@ -169,90 +254,5 @@ export default class MedianCut {
       };
     });
     return colors;
-  }
-
-  /**
-   * 算出した代表色を取得
-   * @return {Object[]}
-   */
-  getIndexColors() {
-    const colors = [];
-    for (let i = 0, len = this.cubes.length; i < len; i=(i+1)|0) {
-      colors[i] = this.__getIndexColors(this.cubes[i]);
-    }
-    return colors;
-  }
-
-  /**
-   * 減色処理の実行
-   * @param  {number} colorsize 減色する色数
-   */
-  run(colorsize) {
-
-    // 元画像の色数が減色数よりも小さい
-    if (this.colors.length <= colorsize) {
-      console.error(`It has already been reduced color.`);
-    }
-
-    // 1個目のキューブの作成
-    let cube = [this.__setProperty(this.colors)];
-
-    // キューブの分割
-    this.cubes = this.__mediancut(cube, colorsize);
-
-    // 代表色のMap
-    const pixels = new Map();
-    for (let i = 0, iLen = this.cubes.length; i < iLen; i=(i+1)|0) {
-      // 代表色の取得
-      const indexColor = this.__getIndexColors(this.cubes[i]);
-      for (let j = 0, jLen = this.cubes[i].color.length; j < jLen; j=(j+1)|0) {
-        let c = this.cubes[i].color[j];
-        const key = c.r | (c.g << 8) | (c.b << 16);
-        pixels.set(key & BIT_FOR_ROUNDING, indexColor);
-      }
-    }
-
-    // データの設定
-    const dataLength = this.raw.length;
-    const data = new Uint8ClampedArray(dataLength);
-    let i = 0;
-    while(i < dataLength) {
-      const key = this.raw[i] | (this.raw[i + 1] << 8) | (this.raw[i + 2] << 16);
-      const color = pixels.get(key & BIT_FOR_ROUNDING);
-
-      data[i] = color.r;
-      data[i + 1] = color.g;
-      data[i + 2] = color.b;
-      data[i + 3] = this.raw[i + 3];
-
-      i = (i+4)|0;
-    }
-
-    return new ImageData(data, this.width, this.height);
-  }
-
-  /**
-   * キューブ毎に代表色(重み係数による平均)を算出する
-   * @param cube
-   * @return {{r: number, b: number, g: number}}
-   * @private
-   */
-  __getIndexColors(cube) {
-    let count = 0;
-    let r = 0;
-    let g = 0;
-    let b = 0;
-    for (let i = 0, len = cube.color.length; i < len; i=(i+1)|0) {
-      let c = cube.color[i];
-      r += c.r * c.uses;
-      g += c.g * c.uses;
-      b += c.b * c.uses;
-      count += c.uses;
-    }
-    return {
-      'r': Math.round(r / count),
-      'g': Math.round(g / count),
-      'b': Math.round(b / count)
-    };
   }
 }
