@@ -186,23 +186,10 @@ export default class MedianCut {
     const colorType = targetBucket.type;
     // TODO: 昇順(パフォーマンス改善)
     targetBucket.colors.sort((a, b) => a[colorType] - b[colorType]);
-    // TODO: 全画素の中央に
-    let splitBorder = Math.floor((targetBucket.colors.length + 1) / 2);
-
-    // 分割の開始
-    let split1 = [];
-    let split2 = [];
-    for (let i = 0, len = targetBucket.colors.length; i < len; i=(i+1)|0) {
-      if (i < splitBorder) {
-        split1[split1.length] = targetBucket.colors[i];
-      } else {
-        split2[split2.length] = targetBucket.colors[i];
-      }
-    }
-
+    const median = Math.floor((targetBucket.colors.length + 1) / 2);
     // プロパティの設定
-    split1 = this.__setProperty(split1);
-    split2 = this.__setProperty(split2);
+    const split1 = this.__setProperty(targetBucket.colors.slice(0, median));
+    const split2 = this.__setProperty(targetBucket.colors.slice(median));
 
     // bucket配列の再編成
     let result = [];
