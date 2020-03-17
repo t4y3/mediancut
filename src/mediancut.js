@@ -1,6 +1,6 @@
-const TYPE_R = 'r';
-const TYPE_G = 'g';
-const TYPE_B = 'b';
+const TYPE_R = 0;
+const TYPE_G = 1;
+const TYPE_B = 2;
 const BIT_FOR_ROUNDING = 0b111110001111100011111000;
 
 /**
@@ -54,8 +54,8 @@ export default class MedianCut {
       // 代表色の取得
       const palette = this.__getPalette(this.buckets[i].colors);
       for (let j = 0, jLen = this.buckets[i].colors.length; j < jLen; j=(j+1)|0) {
-        let c = this.buckets[i].colors[j];
-        const key = c.r | (c.g << 8) | (c.b << 16);
+        const [ r, g, b ] = this.buckets[i].colors[j];
+        const key = r | (g << 8) | (b << 16);
         pixels.set(key & BIT_FOR_ROUNDING, palette);
       }
     }
@@ -66,11 +66,11 @@ export default class MedianCut {
     let i = 0;
     while(i < dataLength) {
       const key = this.raw[i] | (this.raw[i + 1] << 8) | (this.raw[i + 2] << 16);
-      const color = pixels.get(key & BIT_FOR_ROUNDING);
+      const [r, g, b] = pixels.get(key & BIT_FOR_ROUNDING);
 
-      data[i] = color.r;
-      data[i + 1] = color.g;
-      data[i + 2] = color.b;
+      data[i] = r;
+      data[i + 1] = g;
+      data[i + 2] = b;
       data[i + 3] = this.raw[i + 3];
 
       i = (i+4)|0;
@@ -91,17 +91,17 @@ export default class MedianCut {
     let __g = 0;
     let __b = 0;
     for (let i = 0, len = colors.length; i < len; i=(i+1)|0) {
-      const { r, g, b, uses } = colors[i];
+      const [ r, g, b, uses ] = colors[i];
       __r += r * uses;
       __g += g * uses;
       __b += b * uses;
       count += uses;
     }
-    return {
-      'r': Math.round(__r / count),
-      'g': Math.round(__g / count),
-      'b': Math.round(__b / count)
-    };
+    return [
+      Math.round(__r / count),
+      Math.round(__g / count),
+      Math.round(__b / count)
+    ];
   }
 
   /**
@@ -123,7 +123,7 @@ export default class MedianCut {
     let len = colors.length;
     let i = 0;
     while(i < len) {
-      const { r, g, b, uses } = colors[i];
+      const [ r, g, b, uses ] = colors[i];
       maxR = Math.max(r, maxR);
       maxG = Math.max(g, maxG);
       maxB = Math.max(b, maxB);
@@ -233,12 +233,12 @@ export default class MedianCut {
     // 連想配列を配列へ設定
     let colors = [];
     usesColors.forEach((value, key) => {
-      colors[colors.length] = {
-        'r': key & 0b11111111,
-        'g': key >> 8 & 0b11111111,
-        'b': key >> 16 & 0b11111111,
-        'uses': value
-      };
+      colors[colors.length] = [
+        key & 0b11111111,
+        key >> 8 & 0b11111111,
+        key >> 16 & 0b11111111,
+        value
+      ];
     });
     return colors;
   }
