@@ -9,36 +9,36 @@ const BIT_FOR_ROUNDING = 0b111110001111100011111000;
 export default class MedianCut {
   /**
    *
-   * @param {ImageData} imagedata
+   * @param {ImageData} imageData
    */
-  constructor(imagedata) {
-    this.raw = imagedata.data;
-    this.width = imagedata.width;
-    this.height = imagedata.height;
+  constructor(imageData) {
+    this.raw = imageData.data;
+    this.width = imageData.width;
+    this.height = imageData.height;
     this.colors = this.__getColorInfo(this.raw);
     this.cubes = [];
   }
 
   /**
    * 算出した代表色を取得
-   * @return {Object[]}
+   * @return {{r: number, b: number, g: number}[]}
    */
   getIndexColors() {
     const colors = [];
     for (let i = 0, len = this.cubes.length; i < len; i=(i+1)|0) {
-      colors[i] = this.__getIndexColors(this.cubes[i]);
+      colors[i] = this.__getIndexColors(this.cubes[i].color);
     }
     return colors;
   }
 
   /**
    * 減色処理の実行
-   * @param  {number} colorsize 減色する色数
+   * @param  {number} colorSize 減色する色数
    */
-  run(colorsize) {
+  run(colorSize) {
 
     // 元画像の色数が減色数よりも小さい
-    if (this.colors.length <= colorsize) {
+    if (this.colors.length <= colorSize) {
       console.error(`It has already been reduced color.`);
     }
 
@@ -46,13 +46,13 @@ export default class MedianCut {
     let cube = [this.__setProperty(this.colors)];
 
     // キューブの分割
-    this.cubes = this.__mediancut(cube, colorsize);
+    this.cubes = this.__mediancut(cube, colorSize);
 
     // 代表色のMap
     const pixels = new Map();
     for (let i = 0, iLen = this.cubes.length; i < iLen; i=(i+1)|0) {
       // 代表色の取得
-      const indexColor = this.__getIndexColors(this.cubes[i]);
+      const indexColor = this.__getIndexColors(this.cubes[i].color);
       for (let j = 0, jLen = this.cubes[i].color.length; j < jLen; j=(j+1)|0) {
         let c = this.cubes[i].color[j];
         const key = c.r | (c.g << 8) | (c.b << 16);
@@ -80,27 +80,27 @@ export default class MedianCut {
   }
 
   /**
-   * キューブ毎に代表色(重み係数による平均)を算出する
-   * @param cube
+   * 代表色(重み係数による平均)を算出する
+   * @param { {r: number, b: number, g: number, uses: number}[] } colors
    * @return {{r: number, b: number, g: number}}
    * @private
    */
-  __getIndexColors(cube) {
+  __getIndexColors(colors) {
     let count = 0;
-    let r = 0;
-    let g = 0;
-    let b = 0;
-    for (let i = 0, len = cube.color.length; i < len; i=(i+1)|0) {
-      let c = cube.color[i];
-      r += c.r * c.uses;
-      g += c.g * c.uses;
-      b += c.b * c.uses;
-      count += c.uses;
+    let __r = 0;
+    let __g = 0;
+    let __b = 0;
+    for (let i = 0, len = colors.length; i < len; i=(i+1)|0) {
+      const { r, g, b, uses } = colors[i];
+      __r += r * uses;
+      __g += g * uses;
+      __b += b * uses;
+      count += uses;
     }
     return {
-      'r': Math.round(r / count),
-      'g': Math.round(g / count),
-      'b': Math.round(b / count)
+      'r': Math.round(__r / count),
+      'g': Math.round(__g / count),
+      'b': Math.round(__b / count)
     };
   }
 
@@ -158,10 +158,10 @@ export default class MedianCut {
    * 中央値を算出して分割
    * @private
    * @param  {Object[]} cubes     キューブ情報
-   * @param  {number} colorsize 減色後の色数
+   * @param  {number} colorSize 減色後の色数
    * @return {Object[]}
    */
-  __mediancut(cubes, colorsize) {
+  __mediancut(cubes, colorSize) {
     let count = 0;
     let index = 0;
 
@@ -183,9 +183,10 @@ export default class MedianCut {
     }
 
     // メディアン由来の中央値を算出する
-    const colortype = targetCube.type;
+    const colorType = targetCube.type;
     // TODO: 昇順(パフォーマンス改善)
-    targetCube.color.sort((a, b) => a[colortype] - b[colortype]);
+    targetCube.color.sort((a, b) => a[colorType] - b[colorType]);
+    // TODO: 全画素の中央に
     let splitBorder = Math.floor((targetCube.color.length + 1) / 2);
 
     // 分割の開始
@@ -213,8 +214,8 @@ export default class MedianCut {
     result[result.length] = split1;
     result[result.length] = split2;
 
-    if (result.length < colorsize) {
-      return this.__mediancut(result, colorsize);
+    if (result.length < colorSize) {
+      return this.__mediancut(result, colorSize);
     } else {
       return result;
     }
@@ -222,8 +223,7 @@ export default class MedianCut {
 
   /**
    * 使用している色数/使用回数(面積)を取得
-   * @param {ImageData} data
-   * @return {Array}
+   * @param {Uint8ClampedArray} data
    * @private
    * @return {{r: number, g: number, b: number, uses: *}[]}
    */
