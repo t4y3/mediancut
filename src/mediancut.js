@@ -1,6 +1,7 @@
 const TYPE_R = 'r';
 const TYPE_G = 'g';
 const TYPE_B = 'b';
+const BIT_FOR_ROUNDING = 0b111110001111100011111000;
 
 /**
  * MedianCut
@@ -98,7 +99,7 @@ export default class MedianCut {
 
     // メディアン由来の中央値を算出する
     const colortype = targetCube.type;
-    // 昇順
+    // TODO: 昇順(パフォーマンス改善)
     targetCube.color.sort((a, b) => a[colortype] - b[colortype]);
     let splitBorder = Math.floor((targetCube.color.length + 1) / 2);
 
@@ -146,8 +147,9 @@ export default class MedianCut {
     const dataLength = data.length;
     let i = 0;
     while(i < dataLength) {
+      // 全ピットの場合、メモリを使いすぎるので下3桁はむし
       const key = data[i] | (data[i + 1] << 8) | (data[i + 2] << 16);
-      const c = usesColors.get(key);
+      const c = usesColors.get(key & BIT_FOR_ROUNDING);
       if (c) {
         usesColors.set(key, c + 1);
       } else {
@@ -206,7 +208,7 @@ export default class MedianCut {
       for (let j = 0, jLen = this.cubes[i].color.length; j < jLen; j=(j+1)|0) {
         let c = this.cubes[i].color[j];
         const key = c.r | (c.g << 8) | (c.b << 16);
-        pixels.set(key, indexColor);
+        pixels.set(key & BIT_FOR_ROUNDING, indexColor);
       }
     }
 
@@ -216,7 +218,7 @@ export default class MedianCut {
     let i = 0;
     while(i < dataLength) {
       const key = this.raw[i] | (this.raw[i + 1] << 8) | (this.raw[i + 2] << 16);
-      const color = pixels.get(key);
+      const color = pixels.get(key & BIT_FOR_ROUNDING);
 
       data[i] = color.r;
       data[i + 1] = color.g;
