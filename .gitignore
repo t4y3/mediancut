@@ -58,3 +58,7 @@ typings/
 .env
 
 .cache
+
+# dist
+esm
+umd

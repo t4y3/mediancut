@@ -1,9 +1,16 @@
 {
   "name": "mediancut",
   "version": "1.0.10",
-  "description": "MedianCut by JavaScript",
-  "main": "dist/mediancut.js",
-  "module": "dist/mediancut.module.js",
+  "description": "Image reduction by Mediancut algorithm",
+  "main": "umd/mediancut.js",
+  "module": "esm/mediancut.js",
+  "unpkg": "umd/mediancut.js",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "umd",
+    "esm"
+  ],
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
@@ -19,7 +26,7 @@
     "canvas"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/t4y3/mediancut/issues"
   },
