@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
 
     // reduced color (減色)
     let medianCut = new MedianCut(imagedata);
-    let data = medianCut.run(reducedColors[i]);
+    let data = medianCut.reduce(reducedColors[i]);
     ctx.putImageData(data, 0, 0, 0, 0, image.width, image.height);
   }
 
