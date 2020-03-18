@@ -2,14 +2,13 @@
   "name": "mediancut",
   "version": "1.0.10",
   "description": "Image reduction by Mediancut algorithm",
-  "main": "umd/mediancut.js",
-  "module": "esm/mediancut.js",
-  "unpkg": "umd/mediancut.js",
+  "main": "lib/mediancut.js",
+  "module": "lib/mediancut.esm.js",
+  "unpkg": "lib/mediancut.js",
   "files": [
     "LICENSE",
     "README.md",
-    "umd",
-    "esm"
+    "lib"
   ],
   "scripts": {
     "build": "rollup -c",

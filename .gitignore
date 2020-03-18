@@ -60,5 +60,4 @@ typings/
 .cache
 
 # dist
-esm
-umd
+lib

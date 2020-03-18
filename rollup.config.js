@@ -5,7 +5,7 @@ export default [
   {
     input: 'src/mediancut.js',
     output: {
-      file: 'umd/mediancut.js',
+      file: 'lib/mediancut.js',
       format: 'umd',
       name: 'MedianCut',
     },
@@ -23,7 +23,7 @@ export default [
   {
     input: 'src/mediancut.js',
     output: {
-      file: 'esm/mediancut.module.js',
+      file: 'lib/mediancut.esm.js',
       format: 'esm',
     },
     plugins: plugins(),
