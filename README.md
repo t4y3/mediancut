@@ -15,7 +15,7 @@ https://t4y3.github.io/mediancut/index.html
 ### Install
 
 ```html
-<script type="text/javascript" src="path/to/mediancut.js"></script>
+<script type="text/javascript" src="https://unpkg.com/mediancut@latest"></script>
 ```
 
 or

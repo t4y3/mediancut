@@ -5,6 +5,7 @@
   "main": "lib/mediancut.js",
   "module": "lib/mediancut.esm.js",
   "unpkg": "lib/mediancut.js",
+  "types": "lib/types.d.ts",
   "files": [
     "LICENSE",
     "README.md",
@@ -13,7 +14,8 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
-    "server": "superstatic docs/"
+    "server": "superstatic docs/",
+    "types": "jsdoc -t node_modules/tsd-jsdoc/dist src/mediancut.js -d lib"
   },
   "repository": {
     "type": "git",
@@ -31,10 +33,12 @@
   },
   "homepage": "https://github.com/t4y3/mediancut#readme",
   "devDependencies": {
+    "jsdoc": "^3.6.3",
     "rollup": "^2.1.0",
     "rollup-plugin-buble": "^0.19.8",
     "rollup-plugin-terser": "^5.3.0",
-    "superstatic": "^6.0.4"
+    "superstatic": "^6.0.4",
+    "tsd-jsdoc": "^2.4.0"
   },
   "dependencies": {}
 }

@@ -3,12 +3,21 @@ const TYPE_G = 1;
 const TYPE_B = 2;
 const BIT_FOR_ROUNDING = 0b11111000;
 
+
 /**
- * MedianCut
+ * 型定義の説明
+ * @typedef {Object} ObjectOfRGB
+ * @property {number} ObjectOfRGB.r
+ * @property {number} ObjectOfRGB.g
+ * @property {number} ObjectOfRGB.b
+ */
+
+/**
+ * @class MedianCut
  */
 export default class MedianCut {
   /**
-   *
+   * @constructor
    * @param {ImageData} imageData
    */
   constructor(imageData) {
@@ -19,7 +28,7 @@ export default class MedianCut {
 
   /**
    * 算出した色を返す
-   * @return {{r: number, b: number, g: number}[]}
+   * @returns {ObjectOfRGB[]}
    */
   get palette() {
     const colors = [];
@@ -92,7 +101,7 @@ export default class MedianCut {
    * 使用している色数を計算（メモリ節約の為に下位3bitを丸める）
    * @param {Uint8ClampedArray} data
    * @private
-   * @return {{r: number, g: number, b: number, uses: *}[]}
+   * @return {Object[]}
    */
   __calculateColorCount(data) {
     const colors = new Map();
@@ -120,8 +129,8 @@ export default class MedianCut {
 
   /**
    * 平均色を算出する
-   * @param { {r: number, b: number, g: number, uses: number}[] } colors
-   * @return {{r: number, b: number, g: number}}
+   * @param {Object[]} colors
+   * @return {Object}
    * @private
    */
   __getAverageColor(colors) {
@@ -146,7 +155,7 @@ export default class MedianCut {
   /**
    * colorsの合計の使用数と最大範囲のチャンネルを返却
    * @param {Object[]} colors カラー情報
-   * @return {{total: number, channel: number}}
+   * @return {Object}
    * @private
    */
   __getTotalAnGreatestRangeChannel(colors) {
@@ -240,8 +249,8 @@ export default class MedianCut {
 
   /**
    * bucketを生成
-   * @param { {r: number, b: number, g: number, uses: number}[] } colors
-   * @return {{colors: Object[], total: number, channel: number}}
+   * @param {Object[]} colors
+   * @return {Object}
    * @private
    */
   __generateBucket(colors) {
