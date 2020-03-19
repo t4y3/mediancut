@@ -1,13 +1,21 @@
 {
   "name": "mediancut",
   "version": "1.0.10",
-  "description": "MedianCut by JavaScript",
-  "main": "dist/mediancut.js",
-  "module": "dist/mediancut.module.js",
+  "description": "Image reduction by Mediancut algorithm",
+  "main": "lib/mediancut.js",
+  "module": "lib/mediancut.esm.js",
+  "unpkg": "lib/mediancut.js",
+  "types": "lib/types.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "lib"
+  ],
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
-    "server": "superstatic docs/"
+    "server": "superstatic docs/",
+    "types": "jsdoc -t node_modules/tsd-jsdoc/dist src/mediancut.js -d lib"
   },
   "repository": {
     "type": "git",
@@ -19,16 +27,18 @@
     "canvas"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/t4y3/mediancut/issues"
   },
   "homepage": "https://github.com/t4y3/mediancut#readme",
   "devDependencies": {
-    "rollup": "^1.19.4",
+    "jsdoc": "^3.6.3",
+    "rollup": "^2.1.0",
     "rollup-plugin-buble": "^0.19.8",
-    "rollup-plugin-terser": "^5.1.1",
-    "superstatic": "^6.0.4"
+    "rollup-plugin-terser": "^5.3.0",
+    "superstatic": "^6.0.4",
+    "tsd-jsdoc": "^2.4.0"
   },
   "dependencies": {}
 }

@@ -1,28 +1,164 @@
+const TYPE_R = 0;
+const TYPE_G = 1;
+const TYPE_B = 2;
+const BIT_FOR_ROUNDING = 0b11111000;
+
+
 /**
- * MedianCut
+ * 型定義の説明
+ * @typedef {Object} ObjectOfRGB
+ * @property {number} ObjectOfRGB.r
+ * @property {number} ObjectOfRGB.g
+ * @property {number} ObjectOfRGB.b
+ */
+
+/**
+ * @class MedianCut
  */
 export default class MedianCut {
-  constructor(imagedata) {
-    // imagedataのコピー
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext("2d");
-    this.imagedata = ctx.createImageData(imagedata.width, imagedata.height);
-    this.imagedata.data.set(imagedata.data);
-
-    // プロパティ
-    this.raw = this.imagedata.data;
-    this.width = this.imagedata.width;
-    this.height = this.imagedata.height;
-    this.colors = this._getColorInfo();
-    this.cubes = [];
+  /**
+   * @constructor
+   * @param {ImageData} imageData
+   */
+  constructor(imageData) {
+    this.imageData = imageData;
+    this.colors = this.__calculateColorCount(this.imageData.data);
+    this.buckets = [];
   }
 
   /**
-   * 各キューブのプロパティを設定
-   * @private
-   * @param {Object[]} color カラー情報
+   * 算出した色を返す
+   * @returns {ObjectOfRGB[]}
    */
-  _setProperty(color) {
+  get palette() {
+    const colors = [];
+    for (let i = 0, len = this.buckets.length; i < len; i = (i + 1) | 0) {
+      colors[i] = this.__getAverageColor(this.buckets[i].color);
+    }
+    return colors;
+  }
+
+  /**
+   * 減色処理
+   * @param  {number} colorSize 減色する色数
+   * @return {ImageData}
+   */
+  reduce(colorSize) {
+    if (this.colors.length <= colorSize) {
+      console.warn('It has already been reduced color.');
+      return this.imageData;
+    }
+
+    // 再帰的に分割をしていく（lengthがcolorSizeになるまで）
+    this.buckets = this.__mediancut([this.__generateBucket(this.colors)], colorSize);
+
+    const paletteMap = new Map();
+    for (let i = 0, iLen = this.buckets.length; i < iLen; i = (i + 1) | 0) {
+      const bucket = this.buckets[i];
+      // 平均色を取得
+      const palette = this.__getAverageColor(bucket.colors);
+      for (
+        let j = 0, jLen = bucket.colors.length;
+        j < jLen;
+        j = (j + 1) | 0
+      ) {
+        const [r, g, b] = bucket.colors[j];
+        const key =
+          (r & BIT_FOR_ROUNDING) |
+          ((g & BIT_FOR_ROUNDING) << 8) |
+          ((b & BIT_FOR_ROUNDING) << 16);
+        paletteMap.set(key, palette);
+      }
+    }
+
+    const data = this.imageData.data;
+    const dataLength = data.length;
+    const imageData = new Uint8ClampedArray(dataLength);
+    let i = 0;
+    while (i < dataLength) {
+      const key =
+        (data[i] & BIT_FOR_ROUNDING) |
+        ((data[i + 1] & BIT_FOR_ROUNDING) << 8) |
+        ((data[i + 2] & BIT_FOR_ROUNDING) << 16);
+      const [r, g, b] = paletteMap.get(key);
+
+      imageData[i] = r;
+      imageData[i + 1] = g;
+      imageData[i + 2] = b;
+      imageData[i + 3] = data[i + 3];
+
+      i = (i + 4) | 0;
+    }
+
+    return new ImageData(
+      imageData,
+      this.imageData.width,
+      this.imageData.height
+    );
+  }
+
+  /**
+   * 使用している色数を計算（メモリ節約の為に下位3bitを丸める）
+   * @param {Uint8ClampedArray} data
+   * @private
+   * @return {Object[]}
+   */
+  __calculateColorCount(data) {
+    const colors = new Map();
+    const dataLength = data.length;
+    let i = 0;
+    while (i < dataLength) {
+      // 全ピットの場合、メモリを使いすぎるので下3桁はむし
+      const r = data[i] & BIT_FOR_ROUNDING;
+      const g = data[i + 1] & BIT_FOR_ROUNDING;
+      const b = data[i + 2] & BIT_FOR_ROUNDING;
+      const key = r | (g << 8) | (b << 16);
+      const c = colors.get(key);
+      const count = c ? c[3] + 1 : 1;
+      colors.set(key, [r, g, b, count]);
+      i = (i + 4) | 0;
+    }
+
+    // 配列で返却
+    const result = [];
+    colors.forEach(value => {
+      result[result.length] = value;
+    });
+    return result;
+  }
+
+  /**
+   * 平均色を算出する
+   * @param {Object[]} colors
+   * @return {Object}
+   * @private
+   */
+  __getAverageColor(colors) {
+    let count = 0;
+    let __r = 0;
+    let __g = 0;
+    let __b = 0;
+    for (let i = 0, len = colors.length; i < len; i = (i + 1) | 0) {
+      const [r, g, b, uses] = colors[i];
+      __r = r * uses + __r;
+      __g = g * uses + __g;
+      __b = b * uses + __b;
+      count = (count + uses) | 0
+    }
+    return [
+      Math.round(__r / count),
+      Math.round(__g / count),
+      Math.round(__b / count)
+    ];
+  }
+
+  /**
+   * colorsの合計の使用数と最大範囲のチャンネルを返却
+   * @param {Object[]} colors カラー情報
+   * @return {Object}
+   * @private
+   */
+  __getTotalAnGreatestRangeChannel(colors) {
     let total = 0;
     let maxR = 0;
     let maxG = 0;
@@ -31,224 +167,98 @@ export default class MedianCut {
     let minG = 255;
     let minB = 255;
 
-    // 立方体の1辺の長さ
-    for (let i = 0; i < color.length; i++) {
-      let c = color[i];
-      maxR = Math.max(c.r, maxR);
-      maxG = Math.max(c.g, maxG);
-      maxB = Math.max(c.b, maxB);
-      minR = Math.min(c.r, minR);
-      minG = Math.min(c.g, minG);
-      minB = Math.min(c.b, minB);
-      // キューブで使用している面積
-      total += c.uses;
+    // bucketで使用している色からRGBそれぞれのmin,maxをとる
+    let len = colors.length;
+    let i = 0;
+    while (i < len) {
+      const [r, g, b, uses] = colors[i];
+      maxR = Math.max(r, maxR);
+      maxG = Math.max(g, maxG);
+      maxB = Math.max(b, maxB);
+      minR = Math.min(r, minR);
+      minG = Math.min(g, minG);
+      minB = Math.min(b, minB);
+      // bucket内の色数(色数*その色の使用数)
+      total = total + uses;
+      i = (i + 1) | 0;
     }
 
-    let dr = (maxR - minR) * 1.2;
-    let dg = (maxG - minG) * 1.2;
-    let db = (maxB - minB);
+    // 目は赤と緑が認識しやすいのでRとGに係数をかける
+    const diffR = (maxR - minR) * 1.2;
+    const diffG = (maxG - minG) * 1.2;
+    const diffB = maxB - minB;
+    const diffMax = Math.max(diffR, diffG, diffB);
 
     // 同一の場合はrを優先する
-    let type = 'r';
-    if (dr > dg && dr > db) { type = 'r'; }
-    if (dg > dr && dg > db) { type = 'g'; }
-    if (db > dr && db > dg) { type = 'b'; }
+    let channel = TYPE_R;
+    if (diffR === diffMax) {
+      channel = TYPE_R;
+    }
+    if (diffG === diffMax) {
+      channel = TYPE_G;
+    }
+    if (diffB === diffMax) {
+      channel = TYPE_B;
+    }
 
-    return {
-      color,  // キューブの各色情報
-      total,  // キューブの総面積(総色数)
-      type,   // キューブの種類(R/G/B)
-    };
+    return { total, channel };
   }
 
   /**
    * 中央値を算出して分割
    * @private
-   * @param  {Object[]} cubes     キューブ情報
-   * @param  {number} colorsize 減色後の色数
+   * @param  {Object[]} buckets     bucket情報
+   * @param  {number} colorSize 減色後の色数
    * @return {Object[]}
    */
-  _mediancut(cubes, colorsize) {
+  __mediancut(buckets, colorSize) {
     let count = 0;
-    let index = 0;
+    let largestBucketIndex = 0;
 
-    // 面積(色数)が最大のキューブを選択
-    for (let i = 0; i < cubes.length; i++) {
-      if (cubes[i].total > count) {
-        // 1点は除く
-        if (cubes[i].color.length != 1) {
-          index = i;
-          count = cubes[i].total;
-        }
-      }
+    if (buckets.length + 1 > colorSize) {
+      return buckets;
     }
 
-    if (cubes[index].total == 1) {
+    // 面積(色数)が最大のbucketを選択
+    for (let i = 0, len = buckets.length; i < len; i = (i + 1) | 0) {
+      if (buckets[i].total > count && buckets[i].colors.length !== 1) {
+        largestBucketIndex = i;
+        count = buckets[i].total;
+      }
+    }
+    const targetBucket = buckets[largestBucketIndex];
+
+    if (targetBucket.total === 1 || targetBucket.colors.length === 1) {
       console.error(`Cube could not be split.`);
-      return cubes;
+      return buckets;
     }
 
-    if (cubes[index].color.length == 1) {
-      console.error(`Cube could not be split.`);
-      return cubes;
-    }
+    // bucket内の最大範囲の色チャンネルで並び替え
+    const channel = targetBucket.channel;
+    // TODO: 昇順(パフォーマンス改善)
+    targetBucket.colors.sort((a, b) => a[channel] - b[channel]);
+    const median = Math.floor((targetBucket.colors.length + 1) / 2);
+    // bucketを分割
+    const splitBucket1 = this.__generateBucket(targetBucket.colors.slice(0, median));
+    const splitBucket2 = this.__generateBucket(targetBucket.colors.slice(median));
 
-    // メディアン由来の中央値を算出する
-    let colortype = cubes[index].type;
-    cubes[index].color.sort((a, b) => {
-      if (a[colortype] < b[colortype]) {
-        return -1;
-      }
-      if (a[colortype] > b[colortype]) {
-        return 1;
-      }
-      return 0;
-    });
-    let splitBorder = Math.floor((cubes[index].color.length + 1) / 2);
+    buckets.splice(largestBucketIndex, 1, splitBucket1, splitBucket2);
 
-    // 分割の開始
-    let split1 = [];
-    let split2 = [];
-    for (let i = 0; i < cubes[index].color.length; i++) {
-      if (i < splitBorder) {
-        split1[split1.length] = cubes[index].color[i];
-      } else {
-        split2[split2.length] = cubes[index].color[i];
-      }
-    }
-
-    // プロパティの設定
-    split1 = this._setProperty(split1);
-    split2 = this._setProperty(split2);
-
-    // キューブ配列の再編成
-    let result = [];
-    for (let i = 0; i < cubes.length; i++) {
-      if (i != index) {
-        result[result.length] = cubes[i];
-      }
-    }
-    result[result.length] = split1;
-    result[result.length] = split2;
-
-    if (result.length < colorsize) {
-      return this._mediancut(result, colorsize);
-    } else {
-      return result;
-    }
+    return this.__mediancut(buckets, colorSize);
   }
 
   /**
-   * 使用している色数/使用回数を取得
+   * bucketを生成
+   * @param {Object[]} colors
+   * @return {Object}
    * @private
-   * @return {Object[]}
    */
-  _getColorInfo() {
-    // 使用色/使用回数(面積)を取得
-    let count = 0;
-    let uses_colors = {};
-
-    for (let i = 0; i < this.height; i++) {
-      for (let j = 0; j < this.width; j++) {
-        let key = `${ this.raw[count] },${ this.raw[count + 1] },${ this.raw[count + 2] }`;
-        if (!uses_colors[key]) {
-          uses_colors[key] = 1;
-        } else {
-          uses_colors[key] += 1;
-        }
-        count = count + 4;
-      }
-    }
-
-    // 連想配列を配列へ設定
-    let rgb;
-    let colors = [];
-    for (let key in uses_colors) {
-      rgb = key.split(',');
-      colors[colors.length] = {
-        'r': parseInt(rgb[0], 10),
-        'g': parseInt(rgb[1], 10),
-        'b': parseInt(rgb[2], 10),
-        'uses': uses_colors[key]
-      };
-    }
-    return colors;
-  }
-
-  /**
-   * 算出した代表色を取得
-   * @return {Object[]}
-   */
-  getIndexColors() {
-    // キューブ毎に代表色(重み係数による平均)を算出する
-    let colors = [];
-    for (let i = 0; i < this.cubes.length; i++) {
-      let count = 0;
-      let r = 0,
-      g = 0,
-      b = 0;
-      for (let j = 0; j < this.cubes[i].color.length; j++) {
-        let c = this.cubes[i].color[j];
-        r += c.r * c.uses;
-        g += c.g * c.uses;
-        b += c.b * c.uses;
-        count += c.uses;
-      }
-      colors[i] = {
-        'r': Math.round(r / count),
-        'g': Math.round(g / count),
-        'b': Math.round(b / count)
-      };
-    }
-    return colors;
-  }
-
-  /**
-   * 減色処理の実行
-   * @param  {number} colorsize 減色する色数
-   */
-  run(colorsize) {
-
-    // 元画像の色数が減色数よりも小さい
-    if (this.colors.length <= colorsize) {
-      console.error(`It has already been reduced color.`);
-    }
-
-    // 1個目のキューブの作成
-    let cube = [this._setProperty(this.colors)];
-
-    // キューブの分割
-    this.cubes = this._mediancut(cube, colorsize);
-
-    // 代表色の保存
-    let indexColors = this.getIndexColors();
-
-    // ピクセルデータ設定用の連想配列(高速化用)
-    let pixels = {};
-    for (let i = 0; i < this.cubes.length; i++) {
-      for (let j = 0; j < this.cubes[i].color.length; j++) {
-        let c = this.cubes[i].color[j];
-        pixels[`${ c.r },${ c.g },${ c.b }`] = {
-          'r': indexColors[i].r,
-          'g': indexColors[i].g,
-          'b': indexColors[i].b
-        };
-      }
-    }
-
-    // データの設定
-    let key = '';
-    let count = 0;
-    for (let i = 0; i < this.height; i++) {
-      for (let j = 0; j < this.width; j++) {
-        key = `${ this.raw[count] },${ this.raw[count + 1] },${ this.raw[count + 2] }`;
-        this.raw[count] = pixels[key].r;
-        this.raw[count + 1] = pixels[key].g;
-        this.raw[count + 2] = pixels[key].b;
-        count = count + 4;
-      }
-    }
-
-    return this.imagedata;
+  __generateBucket(colors) {
+    const { total, channel } = this.__getTotalAnGreatestRangeChannel(colors);
+    return {
+      colors,
+      total,
+      channel
+    };
   }
 }
