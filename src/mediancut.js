@@ -33,7 +33,7 @@ export default class MedianCut {
   get palette() {
     const colors = [];
     for (let i = 0, len = this.buckets.length; i < len; i = (i + 1) | 0) {
-      colors[i] = this.__getAverageColor(this.buckets[i].color);
+      colors[i] = this.__getAverageColor(this.buckets[i].colors);
     }
     return colors;
   }
