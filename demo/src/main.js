@@ -1,3 +1,5 @@
+const worker = new Worker('worker.js');
+
 window.addEventListener("DOMContentLoaded", () => {
   const canvas = document.querySelector("#canvas");
   const uploadElm = document.getElementById("upload");
@@ -9,6 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const beforeImage = document.querySelector("#beforeImage");
   const beforeImageSwap = document.querySelector("#beforeImageSwap");
   const colorSizeElm = document.querySelector("#colorSize");
+  const spinnerElm = document.querySelector("#spinner");
 
   const cluster = new Cluster({ canvas });
 
@@ -51,6 +54,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   colorSizeElm.addEventListener("change", (e) => {
+    showSpinner();
     cluster.reduce(Number(e.target.value));
   });
 
@@ -75,7 +79,8 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   const preview = (image) => {
-    cluster.run(image, 4);
+    showSpinner();
+    cluster.reduce(4, image);
     beforeImage.src = image.src;
     beforeImageSwap.src = image.src;
     showPreviewArea();
@@ -85,8 +90,25 @@ window.addEventListener("DOMContentLoaded", () => {
     cluster.restore();
     beforeImage.src = "";
     beforeImageSwap.src = "";
+    colorSizeElm.value = 4;
     hidePreviewArea();
   };
+
+  const showSpinner = () => {
+    canvas.classList.add('opacity-25');
+    spinnerElm.classList.remove('hidden');
+  };
+
+  const hideSpinner = () => {
+    canvas.classList.remove('opacity-25');
+    spinnerElm.classList.add('hidden');
+
+  };
+
+  worker.addEventListener('message', (response) => {
+    cluster.draw(response.data);
+    hideSpinner();
+  });
 
   showPreviewArea();
   defaultImage.addEventListener("load", (image) => {
@@ -134,59 +156,36 @@ export default class Cluster {
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  run(image, size = 2) {
-    this.__image = image;
-    this.canvas.width = image.width;
-    this.canvas.height = image.height;
+  reduce(size = 2, image) {
+    if (!!image) {
+      this.__image = image;
+    }
+    this.canvas.width = this.__image.width;
+    this.canvas.height = this.__image.height;
     const ctx = this.canvas.getContext("2d");
     ctx.drawImage(
-      image,
+      this.__image,
       0,
       0,
-      image.width,
-      image.height,
+      this.__image.width,
+      this.__image.height,
       0,
       0,
-      image.width,
-      image.height
+      this.__image.width,
+      this.__image.height
     );
 
-    let imagedata = ctx.getImageData(
+    let imageData = ctx.getImageData(
       0,
       0,
       this.canvas.width,
       this.canvas.height
     );
-    let medianCut = new MedianCut(imagedata);
-    imagedata = medianCut.reduce(size);
-    ctx.putImageData(imagedata, 0, 0, 0, 0, imagedata.width, imagedata.height);
+    worker.postMessage({ imageData, size }, [imageData.data.buffer]);
   }
 
-  reduce(size = 2) {
-    const image = this.__image;
-    this.canvas.width = image.width;
-    this.canvas.height = image.height;
+  draw(imageData) {
     const ctx = this.canvas.getContext("2d");
-    ctx.drawImage(
-      image,
-      0,
-      0,
-      image.width,
-      image.height,
-      0,
-      0,
-      image.width,
-      image.height
-    );
-
-    let imagedata = ctx.getImageData(
-      0,
-      0,
-      this.canvas.width,
-      this.canvas.height
-    );
-    let medianCut = new MedianCut(imagedata);
-    imagedata = medianCut.reduce(size);
-    ctx.putImageData(imagedata, 0, 0, 0, 0, imagedata.width, imagedata.height);
+    ctx.putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
   }
 }

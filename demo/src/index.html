@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" href="../../logo/logo.png" />
     <title>MedianCut Demo</title>
     <link rel="stylesheet" href="styles.css" />
     <script
@@ -142,10 +141,10 @@
               <div class="lg:flex">
                 <div class="flex-1 w-full max-w-7xl mx-auto">
                   <div class="relative bg-gray-100">
-                    <canvas id="canvas" class="w-full lg:block"></canvas>
+                    <canvas id="canvas" class="w-full lg:block opacity-25"></canvas>
                     <div
                       id="close"
-                      class="mx-auto flex-shrink-0 flex items-center justify-center h-8 w-8 lg:h-12 lg:w-12 rounded-full bg-gray-200 sm:mx-0 sm:h-10 sm:w-10 absolute top-2 right-2"
+                      class="mx-auto flex-shrink-0 flex items-center justify-center h-8 w-8 lg:h-12 lg:w-12 rounded-full bg-gray-200 sm:mx-0 sm:h-10 sm:w-10 absolute top-2 right-2 cursor-pointer"
                     >
                       <svg
                         class="h-4 w-4  lg:h-6 lg:w-6 fill-current"
@@ -162,7 +161,7 @@
                     </div>
                     <div
                       id="swap"
-                      class="lg:hidden mx-auto flex-shrink-0 flex items-center justify-center h-8 w-8 lg:h-12 lg:w-12 rounded-full bg-gray-200 sm:mx-0 sm:h-10 sm:w-10 absolute bottom-2 right-2"
+                      class="lg:hidden mx-auto flex-shrink-0 flex items-center justify-center h-8 w-8 lg:h-12 lg:w-12 rounded-full bg-gray-200 sm:mx-0 sm:h-10 sm:w-10 absolute bottom-2 right-2 cursor-pointer"
                     >
                       <svg
                         class="h-4 w-4  lg:h-6 lg:w-6 fill-current"
@@ -180,6 +179,7 @@
                       src=""
                       alt=""
                     />
+                    <div id="spinner" class="spinner absolute inset-0 m-auto rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
                   </div>
                   <div class="mt-4 flex rounded-md shadow-sm">
                     <span
