@@ -1,26 +1,27 @@
-const TYPE_R = 0;
-const TYPE_G = 1;
-const TYPE_B = 2;
 const BIT_FOR_ROUNDING = 0b11111000;
 
+enum Channel {
+  R,
+  G,
+  B
+};
 
-/**
- * 型定義の説明
- * @typedef {Object} ObjectOfRGB
- * @property {number} ObjectOfRGB.r
- * @property {number} ObjectOfRGB.g
- * @property {number} ObjectOfRGB.b
- */
+type Colors = [r: number, g: number, b: number, uses: number];
+type Bucket = { colors: Colors[]; total: number; channel: Channel };
 
 /**
  * @class MedianCut
  */
 export default class MedianCut {
+  imageData: ImageData;
+  colors: Colors[];
+  buckets: Bucket[];
+
   /**
    * @constructor
    * @param {ImageData} imageData
    */
-  constructor(imageData) {
+  constructor(imageData: ImageData) {
     this.imageData = imageData;
     this.colors = this.__calculateColorCount(this.imageData.data);
     this.buckets = [];
@@ -43,25 +44,24 @@ export default class MedianCut {
    * @param  {number} colorSize 減色する色数
    * @return {ImageData}
    */
-  reduce(colorSize) {
+  reduce(colorSize: number) {
     if (this.colors.length <= colorSize) {
-      console.warn('It has already been reduced color.');
+      console.warn("It has already been reduced color.");
       return this.imageData;
     }
 
     // 再帰的に分割をしていく（lengthがcolorSizeになるまで）
-    this.buckets = this.__mediancut([this.__generateBucket(this.colors)], colorSize);
+    this.buckets = this.__mediancut(
+      [this.__generateBucket(this.colors)],
+      colorSize
+    );
 
     const paletteMap = new Map();
     for (let i = 0, iLen = this.buckets.length; i < iLen; i = (i + 1) | 0) {
       const bucket = this.buckets[i];
       // 平均色を取得
       const palette = this.__getAverageColor(bucket.colors);
-      for (
-        let j = 0, jLen = bucket.colors.length;
-        j < jLen;
-        j = (j + 1) | 0
-      ) {
+      for (let j = 0, jLen = bucket.colors.length; j < jLen; j = (j + 1) | 0) {
         const [r, g, b] = bucket.colors[j];
         const key =
           (r & BIT_FOR_ROUNDING) |
@@ -103,7 +103,7 @@ export default class MedianCut {
    * @private
    * @return {Object[]}
    */
-  __calculateColorCount(data) {
+  __calculateColorCount(data: Uint8ClampedArray): Colors[] {
     const colors = new Map();
     const dataLength = data.length;
     let i = 0;
@@ -120,8 +120,8 @@ export default class MedianCut {
     }
 
     // 配列で返却
-    const result = [];
-    colors.forEach(value => {
+    const result: Colors[] = [];
+    colors.forEach((value) => {
       result[result.length] = value;
     });
     return result;
@@ -133,7 +133,7 @@ export default class MedianCut {
    * @return {Object}
    * @private
    */
-  __getAverageColor(colors) {
+  __getAverageColor(colors: Colors[]): [number, number, number] {
     let count = 0;
     let __r = 0;
     let __g = 0;
@@ -143,12 +143,12 @@ export default class MedianCut {
       __r = r * uses + __r;
       __g = g * uses + __g;
       __b = b * uses + __b;
-      count = (count + uses) | 0
+      count = (count + uses) | 0;
     }
     return [
       Math.round(__r / count),
       Math.round(__g / count),
-      Math.round(__b / count)
+      Math.round(__b / count),
     ];
   }
 
@@ -158,7 +158,7 @@ export default class MedianCut {
    * @return {Object}
    * @private
    */
-  __getTotalAnGreatestRangeChannel(colors) {
+  __getTotalAnGreatestRangeChannel(colors: Colors[]) {
     let total = 0;
     let maxR = 0;
     let maxG = 0;
@@ -190,15 +190,15 @@ export default class MedianCut {
     const diffMax = Math.max(diffR, diffG, diffB);
 
     // 同一の場合はrを優先する
-    let channel = TYPE_R;
+    let channel = Channel.R;
     if (diffR === diffMax) {
-      channel = TYPE_R;
+      channel = Channel.R;
     }
     if (diffG === diffMax) {
-      channel = TYPE_G;
+      channel = Channel.G;
     }
     if (diffB === diffMax) {
-      channel = TYPE_B;
+      channel = Channel.B;
     }
 
     return { total, channel };
@@ -206,12 +206,10 @@ export default class MedianCut {
 
   /**
    * 中央値を算出して分割
-   * @private
-   * @param  {Object[]} buckets     bucket情報
-   * @param  {number} colorSize 減色後の色数
-   * @return {Object[]}
+   * @param  buckets bucket情報
+   * @param  colorSize 減色後の色数
    */
-  __mediancut(buckets, colorSize) {
+  __mediancut(buckets: Bucket[], colorSize: number): Bucket[] {
     let count = 0;
     let largestBucketIndex = 0;
 
@@ -239,8 +237,12 @@ export default class MedianCut {
     targetBucket.colors.sort((a, b) => a[channel] - b[channel]);
     const median = Math.floor((targetBucket.colors.length + 1) / 2);
     // bucketを分割
-    const splitBucket1 = this.__generateBucket(targetBucket.colors.slice(0, median));
-    const splitBucket2 = this.__generateBucket(targetBucket.colors.slice(median));
+    const splitBucket1 = this.__generateBucket(
+      targetBucket.colors.slice(0, median)
+    );
+    const splitBucket2 = this.__generateBucket(
+      targetBucket.colors.slice(median)
+    );
 
     buckets.splice(largestBucketIndex, 1, splitBucket1, splitBucket2);
 
@@ -249,16 +251,14 @@ export default class MedianCut {
 
   /**
    * bucketを生成
-   * @param {Object[]} colors
-   * @return {Object}
    * @private
    */
-  __generateBucket(colors) {
+  __generateBucket(colors: Colors[]): Bucket {
     const { total, channel } = this.__getTotalAnGreatestRangeChannel(colors);
     return {
       colors,
       total,
-      channel
+      channel,
     };
   }
 }

@@ -1,9 +1,10 @@
 import buble from 'rollup-plugin-buble'
+import typescript from 'rollup-plugin-typescript2';
 import { terser } from "rollup-plugin-terser";
 
 export default [
   {
-    input: 'src/mediancut.js',
+    input: 'src/mediancut.ts',
     output: {
       file: 'lib/mediancut.js',
       format: 'umd',
@@ -12,7 +13,7 @@ export default [
     plugins: plugins(),
   },
   {
-    input: 'src/mediancut.js',
+    input: 'src/mediancut.ts',
     output: {
       file: 'docs/mediancut.js',
       format: 'umd',
@@ -21,7 +22,7 @@ export default [
     plugins: plugins(),
   },
   {
-    input: 'src/mediancut.js',
+    input: 'src/mediancut.ts',
     output: {
       file: 'lib/mediancut.esm.js',
       format: 'esm',
@@ -32,6 +33,7 @@ export default [
 
 function plugins(){
   return [
+    typescript(),
     buble(),
     terser()
   ];
