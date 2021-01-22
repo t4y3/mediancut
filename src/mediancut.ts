@@ -3,11 +3,12 @@ const BIT_FOR_ROUNDING = 0b11111000;
 enum Channel {
   R,
   G,
-  B
-};
+  B,
+}
 
-type Colors = [r: number, g: number, b: number, uses: number];
-type Bucket = { colors: Colors[]; total: number; channel: Channel };
+// r, g, b, uses
+type Colors = [number, number, number, number];
+type Bucket = { colors: Colors[]; total: number; channel: Channel; };
 
 /**
  * @class MedianCut
@@ -16,16 +17,7 @@ export default class MedianCut {
   imageData: ImageData;
   colors: Colors[];
   buckets: Bucket[];
-
-  /**
-   * @constructor
-   * @param {ImageData} imageData
-   */
-  constructor(imageData: ImageData) {
-    this.imageData = imageData;
-    this.colors = this.__calculateColorCount(this.imageData.data);
-    this.buckets = [];
-  }
+  __bucketsPerStep: [Bucket[]?]
 
   /**
    * 算出した色を返す
@@ -37,6 +29,25 @@ export default class MedianCut {
       colors[i] = this.__getAverageColor(this.buckets[i].colors);
     }
     return colors;
+  }
+
+  /**
+   * 分割過程での全てのbuckets配列を返す
+   * @return {[Bucket[]?]}
+   */
+  get bucketsPerStep() {
+    return this.__bucketsPerStep;
+  }
+
+  /**
+   * @constructor
+   * @param {ImageData} imageData
+   */
+  constructor(imageData: ImageData) {
+    this.imageData = imageData;
+    this.colors = this.__calculateColorCount(this.imageData.data);
+    this.buckets = [];
+    this.__bucketsPerStep = [];
   }
 
   /**
@@ -210,6 +221,9 @@ export default class MedianCut {
    * @param  colorSize 減色後の色数
    */
   __mediancut(buckets: Bucket[], colorSize: number): Bucket[] {
+    // 分割過程でのbucketsを保持しておく
+    this.__bucketsPerStep.push([...buckets]);
+
     let count = 0;
     let largestBucketIndex = 0;
 
