@@ -1,5 +1,3 @@
-const BIT_FOR_ROUNDING = 0b11111000;
-
 enum Channel {
   R,
   G,
@@ -19,12 +17,16 @@ type Bucket = {
   maxG: number;
   maxB: number;
 };
+type Options = {
+  strict: Boolean
+};
 
 /**
  * @class MedianCut
  */
 export default class MedianCut {
   imageData: ImageData;
+  options: Options;
   colors: Colors[];
   buckets: Bucket[];
   private __bucketsPerStep: [Bucket[]?];
@@ -46,6 +48,13 @@ export default class MedianCut {
       Math.round(__g / count),
       Math.round(__b / count),
     ];
+  }
+
+  private get roundingBits() {
+    if (!this.options.strict) {
+      return 0b11111000;
+    }
+    return 0b11111111;
   }
 
   /**
@@ -72,8 +81,9 @@ export default class MedianCut {
    * @constructor
    * @param {ImageData} imageData
    */
-  constructor(imageData: ImageData) {
+  constructor(imageData: ImageData, options?: Options) {
     this.imageData = imageData;
+    this.options = options || { strict: false };
     this.colors = this.__calculateColorCount(this.imageData.data);
     this.buckets = [];
     this.__bucketsPerStep = [];
@@ -104,9 +114,9 @@ export default class MedianCut {
       for (let j = 0, jLen = bucket.colors.length; j < jLen; j = (j + 1) | 0) {
         const [r, g, b] = bucket.colors[j];
         const key =
-          (r & BIT_FOR_ROUNDING) |
-          ((g & BIT_FOR_ROUNDING) << 8) |
-          ((b & BIT_FOR_ROUNDING) << 16);
+          (r & this.roundingBits) |
+          ((g & this.roundingBits) << 8) |
+          ((b & this.roundingBits) << 16);
         paletteMap.set(key, palette);
       }
     }
@@ -117,9 +127,9 @@ export default class MedianCut {
     let i = 0;
     while (i < dataLength) {
       const key =
-        (data[i] & BIT_FOR_ROUNDING) |
-        ((data[i + 1] & BIT_FOR_ROUNDING) << 8) |
-        ((data[i + 2] & BIT_FOR_ROUNDING) << 16);
+        (data[i] & this.roundingBits) |
+        ((data[i + 1] & this.roundingBits) << 8) |
+        ((data[i + 2] & this.roundingBits) << 16);
       const [r, g, b] = paletteMap.get(key);
 
       imageData[i] = r;
@@ -149,9 +159,9 @@ export default class MedianCut {
     let i = 0;
     while (i < dataLength) {
       // 全ピットの場合、メモリを使いすぎるので下3桁はむし
-      const r = data[i] & BIT_FOR_ROUNDING;
-      const g = data[i + 1] & BIT_FOR_ROUNDING;
-      const b = data[i + 2] & BIT_FOR_ROUNDING;
+      const r = data[i] & this.roundingBits;
+      const g = data[i + 1] & this.roundingBits;
+      const b = data[i + 2] & this.roundingBits;
       const key = r | (g << 8) | (b << 16);
       const c = colors.get(key);
       const count = c ? c[3] + 1 : 1;
