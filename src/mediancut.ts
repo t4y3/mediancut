@@ -8,7 +8,17 @@ enum Channel {
 
 // r, g, b, uses
 type Colors = [number, number, number, number];
-type Bucket = { colors: Colors[]; total: number; channel: Channel; };
+type Bucket = {
+  colors: Colors[];
+  total: number;
+  channel: Channel;
+  minR: number;
+  minG: number;
+  minB: number;
+  maxR: number;
+  maxG: number;
+  maxB: number;
+};
 
 /**
  * @class MedianCut
@@ -17,7 +27,26 @@ export default class MedianCut {
   imageData: ImageData;
   colors: Colors[];
   buckets: Bucket[];
-  __bucketsPerStep: [Bucket[]?]
+  private __bucketsPerStep: [Bucket[]?];
+
+  static averageColor(colors: Colors[]): [number, number, number] {
+    let count = 0;
+    let __r = 0;
+    let __g = 0;
+    let __b = 0;
+    for (let i = 0, len = colors.length; i < len; i = (i + 1) | 0) {
+      const [r, g, b, uses] = colors[i];
+      __r = r * uses + __r;
+      __g = g * uses + __g;
+      __b = b * uses + __b;
+      count = (count + uses) | 0;
+    }
+    return [
+      Math.round(__r / count),
+      Math.round(__g / count),
+      Math.round(__b / count),
+    ];
+  }
 
   /**
    * 算出した色を返す
@@ -26,7 +55,7 @@ export default class MedianCut {
   get palette() {
     const colors = [];
     for (let i = 0, len = this.buckets.length; i < len; i = (i + 1) | 0) {
-      colors[i] = this.__getAverageColor(this.buckets[i].colors);
+      colors[i] = MedianCut.averageColor(this.buckets[i].colors);
     }
     return colors;
   }
@@ -71,7 +100,7 @@ export default class MedianCut {
     for (let i = 0, iLen = this.buckets.length; i < iLen; i = (i + 1) | 0) {
       const bucket = this.buckets[i];
       // 平均色を取得
-      const palette = this.__getAverageColor(bucket.colors);
+      const palette = MedianCut.averageColor(bucket.colors)
       for (let j = 0, jLen = bucket.colors.length; j < jLen; j = (j + 1) | 0) {
         const [r, g, b] = bucket.colors[j];
         const key =
@@ -114,7 +143,7 @@ export default class MedianCut {
    * @private
    * @return {Object[]}
    */
-  __calculateColorCount(data: Uint8ClampedArray): Colors[] {
+  private __calculateColorCount(data: Uint8ClampedArray): Colors[] {
     const colors = new Map();
     const dataLength = data.length;
     let i = 0;
@@ -139,37 +168,12 @@ export default class MedianCut {
   }
 
   /**
-   * 平均色を算出する
-   * @param {Object[]} colors
-   * @return {Object}
-   * @private
-   */
-  __getAverageColor(colors: Colors[]): [number, number, number] {
-    let count = 0;
-    let __r = 0;
-    let __g = 0;
-    let __b = 0;
-    for (let i = 0, len = colors.length; i < len; i = (i + 1) | 0) {
-      const [r, g, b, uses] = colors[i];
-      __r = r * uses + __r;
-      __g = g * uses + __g;
-      __b = b * uses + __b;
-      count = (count + uses) | 0;
-    }
-    return [
-      Math.round(__r / count),
-      Math.round(__g / count),
-      Math.round(__b / count),
-    ];
-  }
-
-  /**
    * colorsの合計の使用数と最大範囲のチャンネルを返却
    * @param {Object[]} colors カラー情報
    * @return {Object}
    * @private
    */
-  __getTotalAnGreatestRangeChannel(colors: Colors[]) {
+  private __getTotalAnGreatestRangeChannel(colors: Colors[]) {
     let total = 0;
     let maxR = 0;
     let maxG = 0;
@@ -212,7 +216,7 @@ export default class MedianCut {
       channel = Channel.B;
     }
 
-    return { total, channel };
+    return { total, channel, minR, minG, minB, maxR, maxG, maxB };
   }
 
   /**
@@ -220,7 +224,7 @@ export default class MedianCut {
    * @param  buckets bucket情報
    * @param  colorSize 減色後の色数
    */
-  __mediancut(buckets: Bucket[], colorSize: number): Bucket[] {
+  private __mediancut(buckets: Bucket[], colorSize: number): Bucket[] {
     // 分割過程でのbucketsを保持しておく
     this.__bucketsPerStep.push([...buckets]);
 
@@ -267,12 +271,27 @@ export default class MedianCut {
    * bucketを生成
    * @private
    */
-  __generateBucket(colors: Colors[]): Bucket {
-    const { total, channel } = this.__getTotalAnGreatestRangeChannel(colors);
+  private __generateBucket(colors: Colors[]): Bucket {
+    const {
+      total,
+      channel,
+      minR,
+      minG,
+      minB,
+      maxR,
+      maxG,
+      maxB,
+    } = this.__getTotalAnGreatestRangeChannel(colors);
     return {
       colors,
       total,
       channel,
+      minR,
+      minG,
+      minB,
+      maxR,
+      maxG,
+      maxB,
     };
   }
 }

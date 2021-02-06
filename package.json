@@ -12,9 +12,10 @@
     "lib"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "clean": "rm -rf lib",
+    "build": "npm run clean && rollup -c && npm run types",
     "watch": "rollup -c -w",
-    "types": "tsc -p . -d"
+    "types": "tsc -d --emitDeclarationOnly"
   },
   "repository": {
     "type": "git",

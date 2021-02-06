@@ -15,15 +15,6 @@ export default [
   {
     input: 'src/mediancut.ts',
     output: {
-      file: 'docs/mediancut.js',
-      format: 'umd',
-      name: 'MedianCut',
-    },
-    plugins: plugins(),
-  },
-  {
-    input: 'src/mediancut.ts',
-    output: {
       file: 'lib/mediancut.esm.js',
       format: 'esm',
     },
