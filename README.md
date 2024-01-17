@@ -54,22 +54,4 @@ npm run watch
 
 # Up Server
 npm run server
-``` 
-
-## Deployment
-```sh
-# Build
-npm run build
-
-# Version Up
-npm version major|minor|patch
-
-# Publishes a package to the registry
-npm publish
-
-# Update master branch
-git push origin master
-
-# Push git tags
-git push origin --tags
 ```
