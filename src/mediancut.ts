@@ -18,7 +18,7 @@ type Bucket = {
   maxB: number;
 };
 type Options = {
-  strict: Boolean
+  strict: boolean;
 };
 
 /**
@@ -96,21 +96,22 @@ export default class MedianCut {
    */
   reduce(colorSize: number) {
     if (this.colors.length <= colorSize) {
-      console.warn("It has already been reduced color.");
+      /* eslint-disable-next-line no-console */
+      console.warn('It has already been reduced color.');
       return this.imageData;
     }
 
     // 再帰的に分割をしていく（lengthがcolorSizeになるまで）
     this.buckets = this.__mediancut(
       [this.__generateBucket(this.colors)],
-      colorSize
+      colorSize,
     );
 
     const paletteMap = new Map();
     for (let i = 0, iLen = this.buckets.length; i < iLen; i = (i + 1) | 0) {
       const bucket = this.buckets[i];
       // 平均色を取得
-      const palette = MedianCut.averageColor(bucket.colors)
+      const palette = MedianCut.averageColor(bucket.colors);
       for (let j = 0, jLen = bucket.colors.length; j < jLen; j = (j + 1) | 0) {
         const [r, g, b] = bucket.colors[j];
         const key =
@@ -143,7 +144,7 @@ export default class MedianCut {
     return new ImageData(
       imageData,
       this.imageData.width,
-      this.imageData.height
+      this.imageData.height,
     );
   }
 
@@ -193,7 +194,7 @@ export default class MedianCut {
     let minB = 255;
 
     // bucketで使用している色からRGBそれぞれのmin,maxをとる
-    let len = colors.length;
+    const len = colors.length;
     let i = 0;
     while (i < len) {
       const [r, g, b, uses] = colors[i];
@@ -255,6 +256,7 @@ export default class MedianCut {
     const targetBucket = buckets[largestBucketIndex];
 
     if (targetBucket.total === 1 || targetBucket.colors.length === 1) {
+      /* eslint-disable-next-line no-console */
       console.error(`Cube could not be split.`);
       return buckets;
     }
@@ -266,10 +268,10 @@ export default class MedianCut {
     const median = Math.floor((targetBucket.colors.length + 1) / 2);
     // bucketを分割
     const splitBucket1 = this.__generateBucket(
-      targetBucket.colors.slice(0, median)
+      targetBucket.colors.slice(0, median),
     );
     const splitBucket2 = this.__generateBucket(
-      targetBucket.colors.slice(median)
+      targetBucket.colors.slice(median),
     );
 
     buckets.splice(largestBucketIndex, 1, splitBucket1, splitBucket2);
@@ -282,16 +284,8 @@ export default class MedianCut {
    * @private
    */
   private __generateBucket(colors: Colors[]): Bucket {
-    const {
-      total,
-      channel,
-      minR,
-      minG,
-      minB,
-      maxR,
-      maxG,
-      maxB,
-    } = this.__getTotalAnGreatestRangeChannel(colors);
+    const { total, channel, minR, minG, minB, maxR, maxG, maxB } =
+      this.__getTotalAnGreatestRangeChannel(colors);
     return {
       colors,
       total,
