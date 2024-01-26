@@ -1,3 +1,10 @@
+## [2.1.5](https://github.com/t4y3/mediancut/compare/v2.1.4...v2.1.5) (2024-01-26)
+
+
+### Bug Fixes
+
+* demo ([b6b9616](https://github.com/t4y3/mediancut/commit/b6b96166dbd64b29ae80e7fc44b09478006869b4))
+
 ## [2.1.4](https://github.com/t4y3/mediancut/compare/v2.1.3...v2.1.4) (2024-01-26)
 
 
