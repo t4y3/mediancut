@@ -11,8 +11,8 @@
   "scripts": {
     "clean": "rm -rf lib",
     "prepublishOnly": "rm -rf lib && npm run build && npm run types",
-    "build": "tsup src/mediancut.ts --format esm --dts --minify --out-dir lib",
-    "watch": "tsup src/mediancut.ts --format esm --dts --minify --out-dir lib --watch",
+    "build": "tsup src/mediancut.ts --format esm,iife --dts --minify --out-dir lib",
+    "watch": "tsup src/mediancut.ts --format esm,iife --dts --minify --out-dir lib --watch",
     "types": "tsc -d --emitDeclarationOnly"
   },
   "lint-staged": {
