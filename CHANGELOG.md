@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/t4y3/mediancut/compare/v2.1.3...v2.1.4) (2024-01-26)
+
+
+### Bug Fixes
+
+* support iife ([c9c1c82](https://github.com/t4y3/mediancut/commit/c9c1c82e8d17864bb91dffffdc5f707de25334c9))
+
 ## [2.1.3](https://github.com/t4y3/mediancut/compare/v2.1.2...v2.1.3) (2024-01-22)
 
 
