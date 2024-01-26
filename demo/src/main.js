@@ -1,21 +1,21 @@
 const worker = new Worker('worker.js');
 
-window.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.querySelector("#canvas");
-  const uploadElm = document.getElementById("upload");
-  const uploadedElm = document.getElementById("uploaded");
-  const uploadArea = document.getElementById("upload-area");
-  const closeBtn = document.querySelector("#close");
-  const swapBtn = document.querySelector("#swap");
-  const defaultImage = document.getElementById("original-image");
-  const beforeImage = document.querySelector("#beforeImage");
-  const beforeImageSwap = document.querySelector("#beforeImageSwap");
-  const colorSizeElm = document.querySelector("#colorSize");
-  const spinnerElm = document.querySelector("#spinner");
+window.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.querySelector('#canvas');
+  const uploadElm = document.getElementById('upload');
+  const uploadedElm = document.getElementById('uploaded');
+  const uploadArea = document.getElementById('upload-area');
+  const closeBtn = document.querySelector('#close');
+  const swapBtn = document.querySelector('#swap');
+  const defaultImage = document.getElementById('original-image');
+  const beforeImage = document.querySelector('#beforeImage');
+  const beforeImageSwap = document.querySelector('#beforeImageSwap');
+  const colorSizeElm = document.querySelector('#colorSize');
+  const spinnerElm = document.querySelector('#spinner');
 
   const cluster = new Cluster({ canvas });
 
-  uploadArea.addEventListener("change", (e) => {
+  uploadArea.addEventListener('change', (e) => {
     showPreviewArea();
     changeHandler({
       e,
@@ -24,16 +24,16 @@ window.addEventListener("DOMContentLoaded", () => {
       },
     });
   });
-  uploadArea.addEventListener("dragenter", (e) => {
+  uploadArea.addEventListener('dragenter', (e) => {
     e.preventDefault();
   });
-  uploadArea.addEventListener("dragover", (e) => {
+  uploadArea.addEventListener('dragover', (e) => {
     e.preventDefault();
   });
-  uploadArea.addEventListener("dragleave", (e) => {
+  uploadArea.addEventListener('dragleave', (e) => {
     e.preventDefault();
   });
-  uploadArea.addEventListener("drop", (e) => {
+  uploadArea.addEventListener('drop', (e) => {
     e.preventDefault();
     showPreviewArea();
     changeHandler({
@@ -45,37 +45,37 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  closeBtn.addEventListener("click", () => {
+  closeBtn.addEventListener('click', () => {
     resetPreview(beforeImage);
   });
 
-  swapBtn.addEventListener("click", () => {
+  swapBtn.addEventListener('click', () => {
     swapImage();
   });
 
-  colorSizeElm.addEventListener("change", (e) => {
+  colorSizeElm.addEventListener('change', (e) => {
     showSpinner();
     cluster.reduce(Number(e.target.value));
   });
 
   const swapImage = () => {
-    if (canvas.classList.contains("hidden")) {
-      canvas.classList.remove("hidden");
-      beforeImageSwap.classList.add("hidden");
+    if (canvas.classList.contains('hidden')) {
+      canvas.classList.remove('hidden');
+      beforeImageSwap.classList.add('hidden');
     } else {
-      canvas.classList.add("hidden");
-      beforeImageSwap.classList.remove("hidden");
+      canvas.classList.add('hidden');
+      beforeImageSwap.classList.remove('hidden');
     }
   };
 
   const showPreviewArea = () => {
-    uploadElm.classList.add("hidden");
-    uploadedElm.classList.remove("hidden");
+    uploadElm.classList.add('hidden');
+    uploadedElm.classList.remove('hidden');
   };
 
   const hidePreviewArea = () => {
-    uploadElm.classList.remove("hidden");
-    uploadedElm.classList.add("hidden");
+    uploadElm.classList.remove('hidden');
+    uploadedElm.classList.add('hidden');
   };
 
   const preview = (image) => {
@@ -88,8 +88,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const resetPreview = () => {
     cluster.restore();
-    beforeImage.src = "";
-    beforeImageSwap.src = "";
+    beforeImage.src = '';
+    beforeImageSwap.src = '';
     colorSizeElm.value = 4;
     hidePreviewArea();
   };
@@ -102,7 +102,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const hideSpinner = () => {
     canvas.classList.remove('opacity-25');
     spinnerElm.classList.add('hidden');
-
   };
 
   worker.addEventListener('message', (response) => {
@@ -111,9 +110,13 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   showPreviewArea();
-  defaultImage.addEventListener("load", (image) => {
+  if (defaultImage.complete) {
     preview(defaultImage);
-  });
+  }
+  !defaultImage.complete &&
+    defaultImage.addEventListener('load', () => {
+      preview(defaultImage);
+    });
 });
 
 const changeHandler = ({ e, data, callback }) => {
@@ -152,7 +155,7 @@ export default class Cluster {
   }
 
   restore() {
-    const ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
@@ -162,7 +165,7 @@ export default class Cluster {
     }
     this.canvas.width = this.__image.width;
     this.canvas.height = this.__image.height;
-    const ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.getContext('2d');
     ctx.drawImage(
       this.__image,
       0,
@@ -172,20 +175,20 @@ export default class Cluster {
       0,
       0,
       this.__image.width,
-      this.__image.height
+      this.__image.height,
     );
 
     let imageData = ctx.getImageData(
       0,
       0,
       this.canvas.width,
-      this.canvas.height
+      this.canvas.height,
     );
     worker.postMessage({ imageData, size }, [imageData.data.buffer]);
   }
 
   draw(imageData) {
-    const ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.getContext('2d');
     ctx.putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
   }
 }
