@@ -1,3 +1,10 @@
+## [2.1.6](https://github.com/t4y3/mediancut/compare/v2.1.5...v2.1.6) (2024-01-27)
+
+
+### Bug Fixes
+
+* update dependencies ([274e368](https://github.com/t4y3/mediancut/commit/274e368c4c7ac577c2ff02799d0c80770b201872))
+
 ## [2.1.5](https://github.com/t4y3/mediancut/compare/v2.1.4...v2.1.5) (2024-01-26)
 
 
