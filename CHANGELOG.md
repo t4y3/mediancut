@@ -1,3 +1,10 @@
+## [2.1.7](https://github.com/t4y3/mediancut/compare/v2.1.6...v2.1.7) (2024-01-28)
+
+
+### Bug Fixes
+
+* set global name ([133d726](https://github.com/t4y3/mediancut/commit/133d726fc98366302c7aaa4596af2525aa2429ad))
+
 ## [2.1.6](https://github.com/t4y3/mediancut/compare/v2.1.5...v2.1.6) (2024-01-27)
 
 
