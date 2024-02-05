@@ -1,3 +1,10 @@
+## [2.1.8](https://github.com/t4y3/mediancut/compare/v2.1.7...v2.1.8) (2024-02-05)
+
+
+### Bug Fixes
+
+* comment 🐛 ([684345c](https://github.com/t4y3/mediancut/commit/684345c2b9ace07ae92cfe4a2e97ec00bcef29b4))
+
 ## [2.1.7](https://github.com/t4y3/mediancut/compare/v2.1.6...v2.1.7) (2024-01-28)
 
 
