@@ -29,7 +29,7 @@ export default class MedianCut {
   options: Options;
   colors: Colors[];
   buckets: Bucket[];
-  private __bucketsPerStep: [Bucket[]?];
+  private readonly __bucketsPerStep: [Bucket[]?];
 
   static averageColor(colors: Colors[]): [number, number, number] {
     let count = 0;
@@ -57,10 +57,6 @@ export default class MedianCut {
     return 0b11111111;
   }
 
-  /**
-   * 算出した色を返す
-   * @returns {ObjectOfRGB[]}
-   */
   get palette() {
     const colors = [];
     for (let i = 0, len = this.buckets.length; i < len; i = (i + 1) | 0) {
@@ -69,17 +65,12 @@ export default class MedianCut {
     return colors;
   }
 
-  /**
-   * 分割過程での全てのbuckets配列を返す
-   * @return {[Bucket[]?]}
-   */
   get bucketsPerStep() {
     return this.__bucketsPerStep;
   }
 
   /**
    * @constructor
-   * @param {ImageData} imageData
    */
   constructor(imageData: ImageData, options?: Options) {
     this.imageData = imageData;
@@ -263,7 +254,6 @@ export default class MedianCut {
 
     // bucket内の最大範囲の色チャンネルで並び替え
     const channel = targetBucket.channel;
-    // TODO: 昇順(パフォーマンス改善)
     targetBucket.colors.sort((a, b) => a[channel] - b[channel]);
     const median = Math.floor((targetBucket.colors.length + 1) / 2);
     // bucketを分割
