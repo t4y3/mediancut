@@ -26,17 +26,17 @@ import MedianCut from 'mediancut';
 
 ```js
 // Get context
-let ctx = document.getElementById('canvas').getContext('2d');
+const ctx = document.getElementById('canvas').getContext('2d');
 
 // Get Imagedata
-let imagedata = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+const imagedata = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
 // Reduced to 16 colors
-let medianCut = new MedianCut(imagedata);
-let iData = medianCut.reduce(16);
+const medianCut = new MedianCut(imagedata);
+const reducedImageData = medianCut.reduce(16);
 
 // Draw
-ctx.putImageData(iData, 0, 0, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+ctx.putImageData(reducedImageData, 0, 0, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
 ```
 
 ## Development
