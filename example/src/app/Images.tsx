@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CompareImage } from "@/app/CompareImage";
 
 type Photo =   {
   id: string;

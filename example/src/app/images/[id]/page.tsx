@@ -1,5 +1,6 @@
 import { Header } from '@/app/Header';
 import { Content } from '@/app/images/[id]/Content';
+import Link from "next/link";
 
 type Photo = {
   id: string;
@@ -49,19 +50,19 @@ export default async function Page({ params }: { params: { id: string } }) {
           <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
             <div className="mx-auto flex max-w-2xl items-center justify-between gap-x-8 lg:mx-0 lg:max-w-none">
               <div className="flex items-center gap-x-6">
-                <img
-                  src="https://tailwindui.com/img/logos/48x48/tuple.svg"
-                  alt=""
-                  className="h-16 w-16 flex-none rounded-full ring-1 ring-gray-900/10"
-                />
-                <h1>
-                  <div className="text-sm leading-6 text-gray-500">
-                    Invoice <span className="text-gray-700">#00011</span>
-                  </div>
-                  <div className="mt-1 text-base font-semibold leading-6 text-gray-900">
-                    Tuple, Inc
-                  </div>
-                </h1>
+                {/*<img*/}
+                {/*  src="https://tailwindui.com/img/logos/48x48/tuple.svg"*/}
+                {/*  alt=""*/}
+                {/*  className="h-16 w-16 flex-none rounded-full ring-1 ring-gray-900/10"*/}
+                {/*/>*/}
+                {/*<h1>*/}
+                {/*  <div className="text-sm leading-6 text-gray-500">*/}
+                {/*    Invoice <span className="text-gray-700">#00011</span>*/}
+                {/*  </div>*/}
+                {/*  <div className="mt-1 text-base font-semibold leading-6 text-gray-900">*/}
+                {/*    Tuple, Inc*/}
+                {/*  </div>*/}
+                {/*</h1>*/}
               </div>
               <div className="flex items-center gap-x-4 sm:gap-x-6">
                 <button
@@ -70,24 +71,19 @@ export default async function Page({ params }: { params: { id: string } }) {
                 >
                   Copy URL
                 </button>
-                <a
-                  href="#"
-                  className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
+                <Link
+                  href="/"
+                  type="button"
+                  className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                 >
-                  Edit
-                </a>
-                <a
-                  href="#"
-                  className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Send
-                </a>
+                  Back
+                </Link>
               </div>
             </div>
           </div>
         </header>
 
-        <Content image={image} />
+        <Content image={image}/>
       </main>
     </div>
   );

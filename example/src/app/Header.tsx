@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 const navigation = [
   { name: 'GitHub', href: 'https://github.com/t4y3/mediancut' },
-  { name: 'Explanatory Demo', href: 'https://github.com/t4y3/mediancut' },
+  { name: 'Explanatory Demo', href: 'https://t4y3.github.io/karakuri/color-reduction/' },
 ];
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

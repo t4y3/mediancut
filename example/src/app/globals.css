@@ -18,11 +18,54 @@
 
 body {
   color: rgb(var(--foreground-rgb));
+}
 
+@layer base {
+  input[type='range'] {
+    z-index: 1;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 4px;
+      height: 100px;
+      background-color: CanvasText;
+    }
+
+    &::-moz-range-thumb {
+      appearance: none;
+      width: 4px;
+      height: 100px;
+      background-color: CanvasText;
+    }
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .compare {
+    display: grid;
+
+    > * {
+      grid-area: 1 / 1;
+    }
+
+    > section {
+      display: grid;
+      place-content: center;
+    }
+  }
+
+  .compare >:nth-child(1) {
+    mask: linear-gradient(to right, #000 0, var(--pos, 50%), #0000 0);
+  }
+
+  .compare >:nth-child(2) {
+    mask: linear-gradient(to right, #0000 0, var(--pos, 50%), #000 0);
   }
 }
