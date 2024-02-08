@@ -47,8 +47,6 @@
     "@semantic-release/git": "^10.0.1",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "lint-staged": "^15.2.0",
@@ -57,5 +55,9 @@
     "simple-git-hooks": "^2.9.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
+  },
+  "volta": {
+    "node": "21.6.1",
+    "npm": "10.4.0"
   }
 }
