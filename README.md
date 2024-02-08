@@ -6,7 +6,7 @@
 <img width="674" alt="2018-01-06 20 02 05" src="https://user-images.githubusercontent.com/9010553/107115666-8d0ef580-68b1-11eb-8279-59ebe43ee41d.png">
 
 ## Demo
-https://t4y3.github.io/mediancut/index.html
+https://mediancut.vercel.app/
 
 ## Usage
 
