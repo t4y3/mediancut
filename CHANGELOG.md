@@ -1,3 +1,13 @@
+## [2.1.9](https://github.com/t4y3/mediancut/compare/v2.1.8...v2.1.9) (2024-02-08)
+
+
+### Bug Fixes
+
+* add example ([47f354b](https://github.com/t4y3/mediancut/commit/47f354bf9bccc762afe3edc2ceb71642efc51b5a))
+* example ([532a707](https://github.com/t4y3/mediancut/commit/532a707fe2cbd9cf023ca92b8e49cc168dfdedf9))
+* example ([a9152bf](https://github.com/t4y3/mediancut/commit/a9152bf461bcf94771b6ab28ac1d27ff8c6cc9b6))
+* example ([665ce54](https://github.com/t4y3/mediancut/commit/665ce54e4d7481214db184eeb29aa46f7821010f))
+
 ## [2.1.8](https://github.com/t4y3/mediancut/compare/v2.1.7...v2.1.8) (2024-02-05)
 
 
