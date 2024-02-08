@@ -138,12 +138,12 @@ export const Content = ({
                     {image.author}
                   </dd>
                 </div>
-                <div className="flex-none self-end px-6 pt-4">
-                  <dt className="sr-only">Status</dt>
-                  <dd className="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-600 ring-1 ring-inset ring-green-600/20">
-                    Paid
-                  </dd>
-                </div>
+                {/*<div className="flex-none self-end px-6 pt-4">*/}
+                {/*  <dt className="sr-only">Status</dt>*/}
+                {/*  <dd className="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-600 ring-1 ring-inset ring-green-600/20">*/}
+                {/*    Paid*/}
+                {/*  </dd>*/}
+                {/*</div>*/}
                 <div className="mt-6 flex w-full flex-none gap-x-4 border-t border-gray-900/5 px-6 pt-6">
                   <dt className="flex-none">
                     <span className="sr-only">Client</span>
@@ -387,15 +387,15 @@ export const Content = ({
           {/*</table>*/}
         </div>
 
-        <div className="lg:col-start-3">
-          {/* Activity feed */}
-          <h2 className="text-sm font-semibold leading-6 text-gray-900">
-            Activity
-          </h2>
-          <ul role="list" className="mt-6 space-y-6">
-            <li className="relative flex gap-x-4"></li>
-          </ul>
-        </div>
+        {/*<div className="lg:col-start-3">*/}
+        {/*  /!* Activity feed *!/*/}
+        {/*  <h2 className="text-sm font-semibold leading-6 text-gray-900">*/}
+        {/*    Activity*/}
+        {/*  </h2>*/}
+        {/*  <ul role="list" className="mt-6 space-y-6">*/}
+        {/*    <li className="relative flex gap-x-4"></li>*/}
+        {/*  </ul>*/}
+        {/*</div>*/}
       </div>
     </div>
   );

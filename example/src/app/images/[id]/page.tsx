@@ -28,8 +28,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   return (
     <div className="bg-white">
       <Header />
-
-      <main>
+      <main className="isolate">
         <header className="relative isolate pt-16">
           <div
             className="absolute inset-0 -z-10 overflow-hidden"
@@ -65,12 +64,12 @@ export default async function Page({ params }: { params: { id: string } }) {
                 {/*</h1>*/}
               </div>
               <div className="flex items-center gap-x-4 sm:gap-x-6">
-                <button
-                  type="button"
-                  className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
-                >
-                  Copy URL
-                </button>
+                {/*<button*/}
+                {/*  type="button"*/}
+                {/*  className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"*/}
+                {/*>*/}
+                {/*  Copy URL*/}
+                {/*</button>*/}
                 <Link
                   href="/"
                   type="button"

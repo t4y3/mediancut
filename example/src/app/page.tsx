@@ -1,5 +1,3 @@
-'use client';
-
 import { Header } from '@/app/Header';
 import { Images } from '@/app/Images';
 
