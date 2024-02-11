@@ -30,7 +30,7 @@ export default class MedianCut {
   buckets: Bucket[];
   private readonly __bucketsPerStep: [Bucket[]?];
 
-  static averageColor(colors: Colors[]): [number, number, number] {
+  static averageColor(colors: Colors[]): [r: number, g: number, b: number] {
     let count = 0;
     let __r = 0;
     let __g = 0;
