@@ -4,8 +4,7 @@ enum Channel {
   B,
 }
 
-// r, g, b, uses
-type Colors = [number, number, number, number];
+type Colors = [r: number, g: number, b: number, uses: number];
 type Bucket = {
   colors: Colors[];
   total: number;
@@ -75,17 +74,16 @@ export default class MedianCut {
   constructor(imageData: ImageData, options?: Options) {
     this.imageData = imageData;
     this.options = options || { strict: false };
-    this.colors = this.__calculateColorCount(this.imageData.data);
+    this.colors = this.calculateColorCount(this.imageData.data);
     this.buckets = [];
     this.__bucketsPerStep = [];
   }
 
   /**
    * 減色処理
-   * @param  {number} colorSize 減色する色数
-   * @return {ImageData}
+   * @param colorSize 減色する色数
    */
-  reduce(colorSize: number) {
+  reduce(colorSize: number): ImageData {
     if (this.colors.length <= colorSize) {
       /* eslint-disable-next-line no-console */
       console.warn('It has already been reduced color.');
@@ -94,7 +92,7 @@ export default class MedianCut {
 
     // 再帰的に分割をしていく（lengthがcolorSizeになるまで）
     this.buckets = this.__mediancut(
-      [this.__generateBucket(this.colors)],
+      [this.generateBucket(this.colors)],
       colorSize,
     );
 
@@ -141,11 +139,8 @@ export default class MedianCut {
 
   /**
    * 使用している色数を計算（メモリ節約の為に下位3bitを丸める）
-   * @param {Uint8ClampedArray} data
-   * @private
-   * @return {Object[]}
    */
-  private __calculateColorCount(data: Uint8ClampedArray): Colors[] {
+  private calculateColorCount(data: Uint8ClampedArray): Colors[] {
     const colors = new Map();
     const dataLength = data.length;
     let i = 0;
@@ -171,11 +166,10 @@ export default class MedianCut {
 
   /**
    * colorsの合計の使用数と最大範囲のチャンネルを返却
-   * @param {Object[]} colors カラー情報
-   * @return {Object}
-   * @private
    */
-  private __getTotalAnGreatestRangeChannel(colors: Colors[]) {
+  private getTotalAnGreatestRangeChannel(
+    colors: Colors[],
+  ): Omit<Bucket, 'colors'> {
     let total = 0;
     let maxR = 0;
     let maxG = 0;
@@ -257,12 +251,10 @@ export default class MedianCut {
     targetBucket.colors.sort((a, b) => a[channel] - b[channel]);
     const median = Math.floor((targetBucket.colors.length + 1) / 2);
     // bucketを分割
-    const splitBucket1 = this.__generateBucket(
+    const splitBucket1 = this.generateBucket(
       targetBucket.colors.slice(0, median),
     );
-    const splitBucket2 = this.__generateBucket(
-      targetBucket.colors.slice(median),
-    );
+    const splitBucket2 = this.generateBucket(targetBucket.colors.slice(median));
 
     buckets.splice(largestBucketIndex, 1, splitBucket1, splitBucket2);
 
@@ -273,9 +265,9 @@ export default class MedianCut {
    * bucketを生成
    * @private
    */
-  private __generateBucket(colors: Colors[]): Bucket {
+  private generateBucket(colors: Colors[]): Bucket {
     const { total, channel, minR, minG, minB, maxR, maxG, maxB } =
-      this.__getTotalAnGreatestRangeChannel(colors);
+      this.getTotalAnGreatestRangeChannel(colors);
     return {
       colors,
       total,
