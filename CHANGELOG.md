@@ -1,3 +1,10 @@
+## [2.1.11](https://github.com/t4y3/mediancut/compare/v2.1.10...v2.1.11) (2024-02-11)
+
+
+### Bug Fixes
+
+* types ([db3c3f4](https://github.com/t4y3/mediancut/commit/db3c3f4e93e3ab37deb968a8b40f43526f005741))
+
 ## [2.1.10](https://github.com/t4y3/mediancut/compare/v2.1.9...v2.1.10) (2024-02-11)
 
 
