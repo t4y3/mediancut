@@ -1,6 +1,6 @@
 {
   "name": "mediancut",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "Image reduction by Mediancut algorithm",
   "main": "lib/mediancut.mjs",
   "module": "lib/mediancut.mjs",
