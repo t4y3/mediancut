@@ -1,3 +1,11 @@
+## [2.1.12](https://github.com/t4y3/mediancut/compare/v2.1.11...v2.1.12) (2024-02-16)
+
+
+### Bug Fixes
+
+* remove eslint and prettier ([35b15f0](https://github.com/t4y3/mediancut/commit/35b15f0cc04a97b7d6ce286ecd8d5397297a7d62))
+* use biome ([0692d8c](https://github.com/t4y3/mediancut/commit/0692d8c2727d1ff5672f44d774464dbfc1fc028e))
+
 ## [2.1.11](https://github.com/t4y3/mediancut/compare/v2.1.10...v2.1.11) (2024-02-11)
 
 
