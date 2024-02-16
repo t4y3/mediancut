@@ -10,15 +10,15 @@
   ],
   "scripts": {
     "clean": "rm -rf lib",
-    "prepublishOnly": "rm -rf lib && npm run build && npm run types",
+    "prepublishOnly": "npm run clean && npm run build && npm run types",
     "build": "tsup src/mediancut.ts --format esm,iife --global-name Mediancut --dts --minify --out-dir lib",
     "watch": "tsup src/mediancut.ts --format esm,iife --global-name Mediancut --dts --minify --out-dir lib --watch",
     "types": "tsc -d --emitDeclarationOnly"
   },
   "lint-staged": {
     "src/**/*.{js,ts}": [
-      "eslint src",
-      "prettier --write"
+      "biome lint src",
+      "biome format --write src"
     ]
   },
   "simple-git-hooks": {
@@ -41,6 +41,7 @@
   },
   "homepage": "https://github.com/t4y3/mediancut#readme",
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "@commitlint/cli": "^18.6.0",
     "@commitlint/config-conventional": "^18.6.0",
     "@semantic-release/changelog": "^6.0.3",

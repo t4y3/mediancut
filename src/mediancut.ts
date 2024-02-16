@@ -1,7 +1,7 @@
 enum Channel {
-  R,
-  G,
-  B,
+  R = 0,
+  G = 1,
+  B = 2,
 }
 
 type Colors = [r: number, g: number, b: number, uses: number];
@@ -86,7 +86,7 @@ export default class MedianCut {
   reduce(colorSize: number): ImageData {
     if (this.colors.length <= colorSize) {
       /* eslint-disable-next-line no-console */
-      console.warn('It has already been reduced color.');
+      console.warn("It has already been reduced color.");
       return this.imageData;
     }
 
@@ -141,7 +141,7 @@ export default class MedianCut {
    * 使用している色数を計算（メモリ節約の為に下位3bitを丸める）
    */
   private calculateColorCount(data: Uint8ClampedArray): Colors[] {
-    const colors = new Map();
+    const colors = new Map<number, Colors>();
     const dataLength = data.length;
     let i = 0;
     while (i < dataLength) {
@@ -158,9 +158,9 @@ export default class MedianCut {
 
     // 配列で返却
     const result: Colors[] = [];
-    colors.forEach((value) => {
+    for (const [key, value] of colors) {
       result[result.length] = value;
-    });
+    }
     return result;
   }
 
@@ -169,7 +169,7 @@ export default class MedianCut {
    */
   private getTotalAnGreatestRangeChannel(
     colors: Colors[],
-  ): Omit<Bucket, 'colors'> {
+  ): Omit<Bucket, "colors"> {
     let total = 0;
     let maxR = 0;
     let maxG = 0;
@@ -242,7 +242,7 @@ export default class MedianCut {
 
     if (targetBucket.total === 1 || targetBucket.colors.length === 1) {
       /* eslint-disable-next-line no-console */
-      console.error(`Cube could not be split.`);
+      console.error("Cube could not be split.");
       return buckets;
     }
 
