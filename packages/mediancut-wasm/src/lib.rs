@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::cmp::min;
 use std::cmp::max;
-use wasm_bindgen::prelude::*;
+use wasm_bindgen::{prelude::*, Clamped};
 
 #[wasm_bindgen]
 extern "C" {
@@ -86,14 +86,14 @@ fn average_color(colors: Vec<Colors>) -> (u8, u8, u8) {
     rrr = (color.0 * 10) + rrr;
     ggg = (color.1 * 10) + ggg;
     bbb = (color.2 * 10) + bbb;
-    log(&format!("average_colors: {:#?}, {:#?}, {:#?}", color.0, color.1, color.2));
+//     log(&format!("average_colors: {:#?}, {:#?}, {:#?}", color.0, color.1, color.2));
 
     count = count + color.3 as f64;
   }
 
-  log(&format!("average_colors: {:#?}, {:#?}, {:#?}", rrr, ggg, bbb));
+//   log(&format!("average_colors: {:#?}, {:#?}, {:#?}", rrr, ggg, bbb));
 
-  log(&format!("average_colors: {:#?}, {:#?}, {:#?}, {:#?}", r, g, b, count));
+//   log(&format!("average_colors: {:#?}, {:#?}, {:#?}, {:#?}", r, g, b, count));
 
   ((r / count).round() as u8, (g / count).round() as u8, (b / count).round() as u8)
 }
@@ -167,7 +167,7 @@ pub fn reduce(data: &[u8], size: u8) -> Vec<u8> {
 
 
     let count_by_color = calculate_count(data);
-    log(&format!("count_by_color: {:#?}", count_by_color.len()));
+//     log(&format!("count_by_color: {:#?}", count_by_color.len()));
 //    let count_by_color2 = calculate_count(data);
 //    let average = average_color(count_by_color);
 
@@ -184,7 +184,7 @@ pub fn reduce(data: &[u8], size: u8) -> Vec<u8> {
   for (i, bucket) in buckets.iter().enumerate() {
     let colors = bucket.colors.clone();
     let palette = average_color(colors);
-    log(&format!("Average: {:#?}, {:#?}, {:#?}", palette.0, palette.1, palette.2));
+//     log(&format!("Average: {:#?}, {:#?}, {:#?}", palette.0, palette.1, palette.2));
     for (j, color) in bucket.colors.iter().enumerate() {
       let r = color.0;
       let g = color.1;

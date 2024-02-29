@@ -3,7 +3,8 @@
   "description": "Image reduction by Mediancut algorithm",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/mediancut-wasm/pkg"
   ],
   "scripts": {},
   "repository": {

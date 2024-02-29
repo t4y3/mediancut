@@ -10,5 +10,5 @@ $ cargo new --lib mediancut-wasm
 ```
 
 ```shell
-wasm-pack build --target web
+wasm-pack build --target web --release
 ```

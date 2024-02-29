@@ -5,8 +5,9 @@ import {
   PhotoIcon,
   UserCircleIcon,
 } from '@heroicons/react/20/solid';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { Canvas } from '@/app/images/[id]/Canvas';
+import init, { reduce }  from "mediancut-wasm";
 
 enum Channel {
   R,
@@ -80,6 +81,9 @@ export const Content = ({
     url: string;
   };
 }) => {
+  const [imageData, setImageData] = useState<ImageData | null>(
+    null,
+  );
   const [reducedImageData, setReducedImageData] = useState<ImageData | null>(
     null,
   );
@@ -90,6 +94,19 @@ export const Content = ({
     setReducedImageData(response.data.imageData);
     setBucketsPerStep(response.data.bucketsPerStep);
   });
+
+
+
+  useEffect(() => {
+if (imageData?.data) {
+  console.warn(imageData.data);
+
+  init().then((m) => {
+    const res = reduce(imageData.data, 12);
+  });
+    }
+
+  }, [imageData]);
 
   // worker.postMessage({ imageData, size }, [imageData.data.buffer]);
 
@@ -111,16 +128,20 @@ export const Content = ({
                   const ctx = canvas.getContext('2d');
                   canvas.width = image.width;
                   canvas.height = image.height;
-                  ctx?.drawImage(e.target as HTMLImageElement, 0, 0);
-                  const imageData = ctx!.getImageData(
+                  if (!ctx) {
+                    return;
+                  }
+                  ctx.drawImage(e.target as HTMLImageElement, 0, 0);
+                  const imageData = ctx.getImageData(
                     0,
                     0,
                     image.width,
                     image.height,
                   );
-                  worker.postMessage({ imageData, size: 12 }, [
-                    imageData.data.buffer,
-                  ]);
+                  // worker.postMessage({ imageData, size: 12 }, [
+                  //   imageData.data.buffer,
+                  // ]);
+                  setImageData(imageData);
                 }}
               />
             </div>
@@ -385,6 +406,18 @@ export const Content = ({
           {/*  </tfoot>*/}
           {/*</table>*/}
         </div>
+
+        {/*<div>*/}
+        {/*  {imageData?.data && <Canvas*/}
+        {/*    width={imageData.width}*/}
+        {/*    height={imageData.height}*/}
+        {/*    imageData={new ImageData(*/}
+        {/*      new Uint8ClampedArray(reduce(imageData.data, 12)),*/}
+        {/*      imageData.width,*/}
+        {/*      imageData.height,*/}
+        {/*    )}*/}
+        {/*  />}*/}
+        {/*</div>*/}
 
         {/*<div className="lg:col-start-3">*/}
         {/*  /!* Activity feed *!/*/}
