@@ -1,34 +1,11 @@
-'use client';
+"use client";
 
-import { CompareImage } from '@/app/CompareImage';
-import {
-  PhotoIcon,
-  UserCircleIcon,
-} from '@heroicons/react/20/solid';
-import {useEffect, useState} from 'react';
-import { Canvas } from '@/app/images/[id]/Canvas';
-import init, { reduce }  from "mediancut-wasm";
+import {CompareImage} from '@/app/CompareImage';
+import {Canvas} from '@/app/images/[id]/Canvas';
+import {PhotoIcon, UserCircleIcon,} from '@heroicons/react/20/solid';
+import {useState} from 'react';
 
-enum Channel {
-  R,
-  G,
-  B,
-}
-
-// r, g, b, uses
-type Colors = [number, number, number, number];
-
-type Bucket = {
-  colors: Colors[];
-  total: number;
-  channel: Channel;
-  minR: number;
-  minG: number;
-  minB: number;
-  maxR: number;
-  maxG: number;
-  maxB: number;
-};
+const ColorSize = 12;
 
 // const invoice = {
 //   subTotal: '$8,800.00',
@@ -81,32 +58,21 @@ export const Content = ({
     url: string;
   };
 }) => {
-  const [imageData, setImageData] = useState<ImageData | null>(
-    null,
-  );
+  // const Width = 30;
+  // const Height = 30
+  // // TODO: debug
+  // image.download_url = `http://localhost:3000/linear.png`
+  // image.width = Width
+  // image.height = Height
+
   const [reducedImageData, setReducedImageData] = useState<ImageData | null>(
     null,
   );
-  const [bucketsPerStep, setBucketsPerStep] = useState<[Bucket[]] | []>([]);
-  const worker = new Worker(new URL('./worker', import.meta.url));
+  const worker = new Worker(new URL("./worker", import.meta.url));
 
-  worker.addEventListener('message', (response) => {
+  worker.addEventListener("message", (response) => {
     setReducedImageData(response.data.imageData);
-    setBucketsPerStep(response.data.bucketsPerStep);
   });
-
-
-
-  useEffect(() => {
-if (imageData?.data) {
-  console.warn(imageData.data);
-
-  init().then((m) => {
-    const res = reduce(imageData.data, 12);
-  });
-    }
-
-  }, [imageData]);
 
   // worker.postMessage({ imageData, size }, [imageData.data.buffer]);
 
@@ -124,8 +90,8 @@ if (imageData?.data) {
                 alt=""
                 crossOrigin="anonymous"
                 onLoad={(e) => {
-                  const canvas = document.createElement('canvas');
-                  const ctx = canvas.getContext('2d');
+                  const canvas = document.createElement("canvas");
+                  const ctx = canvas.getContext("2d");
                   canvas.width = image.width;
                   canvas.height = image.height;
                   if (!ctx) {
@@ -138,10 +104,9 @@ if (imageData?.data) {
                     image.width,
                     image.height,
                   );
-                  // worker.postMessage({ imageData, size: 12 }, [
-                  //   imageData.data.buffer,
-                  // ]);
-                  setImageData(imageData);
+                  worker.postMessage({ imageData, size: ColorSize }, [
+                    imageData.data.buffer,
+                  ]);
                 }}
               />
             </div>
@@ -205,6 +170,7 @@ if (imageData?.data) {
                 <a
                   href={image.url}
                   target="_blank"
+                  rel="noreferrer"
                   className="text-sm font-semibold leading-6 text-gray-900"
                 >
                   Download photo <span aria-hidden="true">&rarr;</span>
@@ -261,14 +227,14 @@ if (imageData?.data) {
               <dt className="font-semibold text-gray-900">From</dt>
               <dd className="mt-2 text-gray-500">
                 {/*<span className="font-medium text-gray-900">Acme, Inc.</span>*/}
-                {bucketsPerStep[0]?.[0].total.toLocaleString()} colors
+                Many colors
               </dd>
             </div>
             <div className="mt-8 sm:mt-6 sm:border-t sm:border-gray-900/5 sm:pl-4 sm:pt-6">
               <dt className="font-semibold text-gray-900">To</dt>
               <dd className="mt-2 text-gray-500">
                 {/*<span className="font-medium text-gray-900">Tuple, Inc</span>*/}
-                {12} colors
+                {ColorSize} colors
               </dd>
             </div>
           </dl>
