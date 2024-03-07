@@ -1,4 +1,7 @@
-import init, {reduce} from "mediancut-wasm";
+import init, {reduce} from "mediancut-wasm/mediancut_wasm";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+// importScripts('https://unpkg.com/mediancut-wasm@latest/mediancut-wasm-iife.js');
 
 (async () => {
   await init();
