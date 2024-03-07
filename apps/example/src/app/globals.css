@@ -41,6 +41,10 @@ body {
       background-color: CanvasText;
     }
   }
+
+  canvas {
+    image-rendering: pixelated;
+  }
 }
 
 @layer utilities {
