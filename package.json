@@ -3,8 +3,7 @@
   "description": "Image reduction by Mediancut algorithm",
   "workspaces": [
     "apps/*",
-    "packages/*",
-    "packages/mediancut-wasm/pkg"
+    "packages/*"
   ],
   "scripts": {},
   "repository": {
@@ -26,8 +25,5 @@
   "volta": {
     "node": "21.6.1",
     "npm": "10.4.0"
-  },
-  "engines": {
-    "npm": "7.18.x"
   }
 }
