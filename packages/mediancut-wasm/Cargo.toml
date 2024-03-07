@@ -1,6 +1,9 @@
 [package]
 name = "mediancut-wasm"
-version = "0.1.0"
+description = "Median Cut algorithm implemented in Rust and compiled to WebAssembly"
+repository = "git+https://github.com/t4y3/mediancut.git"
+license = "MIT"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

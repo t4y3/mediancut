@@ -20,7 +20,10 @@ $ cargo new --lib mediancut-wasm
 
 ```shell
 wasm-pack build --target web --release
+wasm-pack build --target no-modules --release --out-name mediancut-wasm-iife --out-dir pkg-iife
 ```
+
+TODO: Merge the two builds into one.
 
 ### Test
 
