@@ -11,8 +11,9 @@
   "scripts": {
     "clean": "rm -rf lib",
     "prepublishOnly": "npm run clean && npm run build && npm run types",
-    "build": "tsup src/mediancut.ts --format esm,iife --global-name Mediancut --dts --minify --out-dir lib",
-    "watch": "tsup src/mediancut.ts --format esm,iife --global-name Mediancut --dts --minify --out-dir lib --watch",
+    "build": "tsup src/mediancut.ts --format esm,iife,cjs --global-name Mediancut --dts --minify --out-dir lib",
+    "dev": "npm run build -- --watch",
+    "test": "node --test",
     "types": "tsc -d --emitDeclarationOnly"
   },
   "lint-staged": {
@@ -52,5 +53,9 @@
     "simple-git-hooks": "^2.9.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
+  },
+  "volta": {
+    "node": "20.11.1",
+    "npm": "10.5.0"
   }
 }
