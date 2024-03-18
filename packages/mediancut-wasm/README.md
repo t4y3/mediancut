@@ -1,5 +1,7 @@
 # mediancut-wasm
 
+![NPM Version](https://img.shields.io/npm/v/mediancut-wasm)
+
 ## Setup
 
 ### Install
